@@ -3,9 +3,13 @@
 package com.example.yuzur.maps;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
+import android.media.ExifInterface;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.v4.app.ActivityCompat;
@@ -20,6 +24,7 @@ import android.widget.ImageView;
 import android.widget.Toast;
 
 import java.io.File;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -29,10 +34,21 @@ public class CameraActivity extends AppCompatActivity {
     private Uri file;
     private static final String TAG = CameraActivity.class.getSimpleName();
 
+    double direction = 0;
+    double longitude = 0;
+    double latitude = 0;
+    double altitude = 0;
+    double accuracy = 0;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_camera);
+        Intent i = getIntent();
+        direction = i.getDoubleExtra("direction", 300.0);
+        longitude = i.getDoubleExtra("longitude", 0);
+        latitude = i.getDoubleExtra("latitude", 0);
+        altitude = i.getDoubleExtra("altitude", 0);
+        accuracy = i.getDoubleExtra("accuracy", 0);
 
         takePictureButton = (Button) findViewById(R.id.button_image);
         imageView = (ImageView) findViewById(R.id.imageview);
@@ -56,14 +72,20 @@ public class CameraActivity extends AppCompatActivity {
     public void takePicture(View view) {
         Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         File f = getOutputMediaFile();
-        file = FileProvider.getUriForFile( this, "com.example.yuzur.fileprovider", f);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
+            file = FileProvider.getUriForFile(this, "com.example.yuzur.fileprovider", f);
+        }
+        else{
+            file = Uri.fromFile(f);
+        }
+
         intent.putExtra(MediaStore.EXTRA_OUTPUT, file);
         startActivityForResult(intent, 100);
     }
 
     private static File getOutputMediaFile(){
         File mediaStorageDir = new File(Environment.getExternalStoragePublicDirectory(
-                Environment.DIRECTORY_PICTURES), "CameraDemo");
+                Environment.DIRECTORY_PICTURES), "WIFIRE");
 
         if (!mediaStorageDir.exists()){
             if (!mediaStorageDir.mkdirs()){
@@ -74,7 +96,7 @@ public class CameraActivity extends AppCompatActivity {
 
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
         return new File(mediaStorageDir.getPath() + File.separator +
-                "IMG_"+ timeStamp + ".jpg");
+                "IMG_"+ timeStamp + ".jpeg");
     }
 
     private void addPhotoToGallery() {
@@ -82,15 +104,56 @@ public class CameraActivity extends AppCompatActivity {
         mediaScanIntent.setData(file); //your file uri
         this.sendBroadcast(mediaScanIntent);
     }
+    synchronized public static final String convert(double latitude) {
+        StringBuilder sb = new StringBuilder(20);
+        latitude=Math.abs(latitude);
+        int degree = (int) latitude;
+        latitude *= 60;
+        latitude -= (degree * 60.0d);
+        int minute = (int) latitude;
+        latitude *= 60;
+        latitude -= (minute * 60.0d);
+        int second = (int) (latitude*1000.0d);
+
+        sb.setLength(0);
+        sb.append(degree);
+        sb.append("/1,");
+        sb.append(minute);
+        sb.append("/1,");
+        sb.append(second);
+        sb.append("/1000,");
+        return sb.toString();
+    }
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+    protected void onActivityResult(int requestCode, int resultCode, Intent data){
         if (requestCode == 100) {
             if (resultCode == RESULT_OK) {
                 imageView.setImageURI(file);
+                try {
+                    String path = "";
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
+                        path = Environment.getExternalStoragePublicDirectory(file.getPath()).getAbsolutePath();
+                    }
+                    else{
+                        path = file.getPath();
+                    }
+                    ExifInterface header = new ExifInterface(path);
+                    header.setAttribute(ExifInterface.TAG_GPS_LATITUDE, convert(latitude));
+                    header.setAttribute(ExifInterface.TAG_GPS_LONGITUDE, convert(longitude));
+                    header.setAttribute(ExifInterface.TAG_GPS_ALTITUDE, (int)altitude+"/1");
+                    header.saveAttributes();
+
+                }
+                catch (IOException e){
+                    Log.wtf(TAG, "IOException");
+                    Log.wtf(TAG, e.getMessage());
+                }
                 addPhotoToGallery();
             }
         }
+
+
     }
 
 }

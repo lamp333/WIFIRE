@@ -70,6 +70,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     double azimuth = 0;
     double pitch = 0;
     double roll = 0;
+    double longitude = 0;
+    double latitude = 0;
+    double altitude = 0;
+    double accuracy = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -189,8 +193,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         lastLocation = location;
         LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
+        latitude = location.getLatitude();
+        longitude =  location.getLongitude();
+        altitude = location.getAltitude();
+        accuracy = location.getAltitude();
 
         TextView TV_Location = (TextView) findViewById((R.id.TV_Location));
+
         TV_Location.setText("Lat: " + (float) ((int) (location.getLatitude() * 100)) / 100 + "\n" +
                 "Lon: " + (float) ((int) (location.getLongitude() * 100)) / 100 + "\n" +
                 "Altitude: " + (float) ((int) (location.getAltitude() * 100)) / 100 + "meters");
@@ -231,10 +240,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     public void onSensorChanged(SensorEvent sensorEvent) {
 // If the sensor data is unreliable return
+        boolean unreliable = false;
         if (sensorEvent.accuracy == SensorManager.SENSOR_STATUS_UNRELIABLE) {
-            Log.d(TAG, "welp sensor ded");
-            Toast.makeText(this, "aaaaaa", Toast.LENGTH_LONG);
-            return;
+            unreliable = true;
         }
 
         // Gets the value of the sensor that has been changed
@@ -255,9 +263,16 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     gravity, geomag);
             if (success) {
                 SensorManager.getOrientation(inR, orientVals);
-                azimuth = Math.toDegrees(orientVals[0]);
+                azimuth =  Math.toDegrees(orientVals[0]);
                 pitch = Math.toDegrees(orientVals[1]);
                 roll = Math.toDegrees(orientVals[2]);
+                TextView TV_Warning = (TextView) findViewById((R.id.TV_Warning));
+                if(unreliable){
+                    TV_Warning.setText("Sensor: unreliable");
+                }
+                else{
+                    TV_Warning.setText("Sensor: reliable");
+                }
                 TextView TV_Orientation = (TextView) findViewById((R.id.TV_Orientation));
                 TV_Orientation.setText("azimuth: " + (int) azimuth + "\n" +
                         "pitch: " + (int) pitch + "\n" +
@@ -274,6 +289,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     public void onClick(View v) {
         if(v.getId() == R.id.picture_button){
             Intent i = new Intent(MapsActivity.this, CameraActivity.class);
+            i.putExtra("longitude", longitude);
+            i.putExtra("latitude", latitude);
+            i.putExtra("altitude", altitude);
+            i.putExtra("accuracy", accuracy);
+            i.putExtra("direction", azimuth);
+
             startActivity(i);
         }
 
