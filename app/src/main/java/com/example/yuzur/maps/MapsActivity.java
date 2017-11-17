@@ -12,6 +12,7 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.location.Location;
 import android.os.Build;
+import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
@@ -126,6 +127,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                         startPictureIntent();
                         break;
                     case SETTINGS:
+                        openSettings();
                         break;
                 }
             }
@@ -151,6 +153,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         mDrawerToggle.setDrawerIndicatorEnabled(true);
         mDrawerLayout.addDrawerListener(mDrawerToggle);
+
+        PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
     }
 
     protected synchronized void buildGoogleApiClient() {
@@ -372,7 +376,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     }
 
-    private void startPictureIntent(){
+    private void startPictureIntent() {
         Intent i = new Intent(MapsActivity.this, CameraActivity.class);
         i.putExtra("longitude", longitude);
         i.putExtra("latitude", latitude);
@@ -380,6 +384,11 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         i.putExtra("accuracy", accuracy);
         i.putExtra("direction", azimuth);
 
+        startActivity(i);
+    }
+
+    public void openSettings() {
+        Intent i = new Intent(MapsActivity.this, SettingsActivity.class);
         startActivity(i);
     }
 
