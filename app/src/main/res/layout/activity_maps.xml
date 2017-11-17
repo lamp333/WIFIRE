@@ -84,4 +84,16 @@
         android:layout_centerHorizontal="true"
         android:onClick="onClick"
         android:text="Take Picture" />
+
+    <ImageButton
+        android:id="@+id/settings_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_marginLeft="55dp"
+        android:layout_marginStart="55dp"
+        android:layout_toEndOf="@+id/picture_button"
+        android:layout_toRightOf="@+id/picture_button"
+        android:onClick="openSettings"
+        />
 </RelativeLayout>

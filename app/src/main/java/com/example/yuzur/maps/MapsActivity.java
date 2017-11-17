@@ -11,6 +11,7 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.location.Location;
 import android.os.Build;
+import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
@@ -86,7 +87,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
-
+        PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
     }
 
     protected synchronized void buildGoogleApiClient() {
@@ -298,6 +299,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             startActivity(i);
         }
 
+    }
+
+    public void openSettings(View view) {
+        Intent i = new Intent(MapsActivity.this, SettingsActivity.class);
+        startActivity(i);
     }
 
 
