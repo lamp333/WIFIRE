@@ -1,4 +1,13 @@
 <resources>
-    <string name="app_name">Maps</string>
-    <string name="title_activity_maps">Map</string>
+    <string name="app_name">WIFIRE</string>
+    <string name="title_activity_maps">Home</string>
+
+    <string-array name="nav_menu">
+        <item>Home</item>
+        <item>Take Picture</item>
+        <item>Settings</item>
+    </string-array>
+
+    <string name="drawer_open">Open navigation drawer</string>
+    <string name="drawer_close">Close navigation drawer</string>
 </resources>

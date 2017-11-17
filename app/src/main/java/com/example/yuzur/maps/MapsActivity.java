@@ -3,6 +3,7 @@ package com.example.yuzur.maps;
 import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.hardware.Sensor;
@@ -17,9 +18,16 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.OrientationEventListener;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -38,7 +46,7 @@ import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 
 
-public class MapsActivity extends FragmentActivity implements OnMapReadyCallback,
+public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback,
         GoogleMap.OnMyLocationButtonClickListener,
         //GoogleMap.OnMyLocationClickListener,
         GoogleApiClient.ConnectionCallbacks,
@@ -46,6 +54,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         GoogleMap.OnCameraMoveStartedListener,
         SensorEventListener,
         LocationListener {
+
+    private final int HOME = 0;
+    private final int TAKE_PICTURE = 1;
+    private final int SETTINGS = 2;
 
     private GoogleMap mMap;
     private GoogleApiClient client;
@@ -58,6 +70,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private boolean followUserLocation = true;
     public static final int REQUEST_LOCATION_CODE = 99;
     private static final String TAG = MapsActivity.class.getSimpleName();
+
+    private DrawerLayout mDrawerLayout;
+    private ListView mDrawerList;
+    private String[] mNavMenuOptions;
+    private ActionBarDrawerToggle mDrawerToggle;
 
 
     /*Values*/
@@ -87,6 +104,53 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setHomeButtonEnabled(true);
+
+        mNavMenuOptions = getResources().getStringArray(R.array.nav_menu);
+        mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+        mDrawerList = (ListView) findViewById(R.id.navList);
+
+        // Set the adapter for the list view
+        mDrawerList.setAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, mNavMenuOptions));
+        // Set the list's click listener
+        mDrawerList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                Log.d(TAG, "item " + i + " clicked");
+
+                switch (i) {
+                    case HOME:
+                        break;
+                    case TAKE_PICTURE:
+                        startPictureIntent();
+                        break;
+                    case SETTINGS:
+                        break;
+                }
+            }
+        });
+
+        mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout,
+                R.string.drawer_open, R.string.drawer_close) {
+
+            /** Called when a drawer has settled in a completely open state. */
+            public void onDrawerOpened(View drawerView) {
+                super.onDrawerOpened(drawerView);
+                getSupportActionBar().setTitle("Navigation");
+                invalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
+            }
+
+            /** Called when a drawer has settled in a completely closed state. */
+            public void onDrawerClosed(View view) {
+                super.onDrawerClosed(view);
+                getSupportActionBar().setTitle(getTitle().toString());
+                invalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
+            }
+        };
+
+        mDrawerToggle.setDrawerIndicatorEnabled(true);
+        mDrawerLayout.addDrawerListener(mDrawerToggle);
     }
 
     protected synchronized void buildGoogleApiClient() {
@@ -106,6 +170,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     protected void onPause() {
         super.onPause();
+    }
+
+    @Override
+    protected void onPostCreate(Bundle savedInstanceState) {
+        super.onPostCreate(savedInstanceState);
+        mDrawerToggle.syncState();
     }
 
     @Override
@@ -147,6 +217,15 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         return true;
     }
 
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Activate the navigation drawer toggle
+        if (mDrawerToggle.onOptionsItemSelected(item)) {
+            return true;
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
@@ -288,16 +367,20 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     public void onClick(View v) {
         if(v.getId() == R.id.picture_button){
-            Intent i = new Intent(MapsActivity.this, CameraActivity.class);
-            i.putExtra("longitude", longitude);
-            i.putExtra("latitude", latitude);
-            i.putExtra("altitude", altitude);
-            i.putExtra("accuracy", accuracy);
-            i.putExtra("direction", azimuth);
-
-            startActivity(i);
+            startPictureIntent();
         }
 
+    }
+
+    private void startPictureIntent(){
+        Intent i = new Intent(MapsActivity.this, CameraActivity.class);
+        i.putExtra("longitude", longitude);
+        i.putExtra("latitude", latitude);
+        i.putExtra("altitude", altitude);
+        i.putExtra("accuracy", accuracy);
+        i.putExtra("direction", azimuth);
+
+        startActivity(i);
     }
 
 
