@@ -59,6 +59,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     private final int HOME = 0;
     private final int TAKE_PICTURE = 1;
     private final int SETTINGS = 2;
+    private final int ABOUT = 3;
 
     private GoogleMap mMap;
     private GoogleApiClient client;
@@ -129,6 +130,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                     case SETTINGS:
                         openSettings();
                         break;
+                    case ABOUT:
+                        openAbout();
                 }
             }
         });
@@ -273,7 +276,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     @Override
     public void onLocationChanged(Location location) {
-
         lastLocation = location;
         LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
         latitude = location.getLatitude();
@@ -387,8 +389,13 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         startActivity(i);
     }
 
-    public void openSettings() {
+    private void openSettings() {
         Intent i = new Intent(MapsActivity.this, SettingsActivity.class);
+        startActivity(i);
+    }
+
+    private void openAbout(){
+        Intent i = new Intent(MapsActivity.this, AboutActivity.class);
         startActivity(i);
     }
 
