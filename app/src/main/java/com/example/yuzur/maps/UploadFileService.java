@@ -12,11 +12,13 @@ import android.util.Log;
 import android.widget.Toast;
 
 import org.apache.commons.codec.binary.Hex;
+import org.apache.commons.io.IOUtils;
 
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
@@ -98,38 +100,12 @@ public class UploadFileService extends JobService {
 
 
                     //Write data
-                    DataOutputStream dos = new DataOutputStream(connection.getOutputStream());
-                    File image = new File((String)params.getExtras().get("input"));
-                    FileInputStream fileInputStream = new FileInputStream(image);
-
-                    dos.writeBytes(twoHyphens + boundary + lineEnd);
-                    dos.writeBytes("Content-Disposition: form-data; name=\"" +
-                            "uploaded_file" + "\";filename=\"" +
-                            image.getName() + "\"" + lineEnd);
-                    dos.writeBytes(lineEnd);
-
-
-                    int bufferSize = fileInputStream.available();
-                    byte[] buffer = new byte[bufferSize];
-                    int bytesRead = fileInputStream.read(buffer, 0, bufferSize);
-
-                    while (bytesRead > 0)
-                    {
-                        dos.write(buffer, 0, bufferSize);
-                        bufferSize = fileInputStream.available();
-                        bytesRead = fileInputStream.read(buffer, 0, bufferSize);
-                    }
-
-                    dos.writeBytes(lineEnd);
-                    dos.writeBytes(twoHyphens + boundary + twoHyphens + lineEnd);
-
+                    FileInputStream instream = new FileInputStream((String)params.getExtras().get("input"));
+                    IOUtils.copy(instream, connection.getOutputStream());
 
                     //Server Response
-                    String serverResponseMessage = connection.getResponseMessage();
-                    Log.wtf(TAG, "Server Response: " +serverResponseMessage);
-                    fileInputStream.close();
-                    dos.flush();
-                    dos.close();
+                    String res = IOUtils.toString(connection.getInputStream());
+                    Log.wtf(TAG,"Response: " + res);
 
                 }
                 catch ( MalformedURLException e){
