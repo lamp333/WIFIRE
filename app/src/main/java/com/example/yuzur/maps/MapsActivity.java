@@ -1,6 +1,9 @@
 package com.example.yuzur.maps;
 
 import android.Manifest;
+import android.app.job.JobInfo;
+import android.app.job.JobScheduler;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
@@ -12,6 +15,7 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.location.Location;
 import android.os.Build;
+import android.os.PersistableBundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -96,6 +100,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             mLocationPermissionGranted = checkLocationPermission();
         }
@@ -371,6 +376,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     public void onClick(View v) {
         if(v.getId() == R.id.picture_button){
+
             startPictureIntent();
         }
 

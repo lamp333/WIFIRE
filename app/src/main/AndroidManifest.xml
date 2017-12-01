@@ -59,6 +59,9 @@
         <activity android:name=".SettingsActivity">
         </activity>
 
+        <service android:name=".UploadFileService"
+            android:permission="android.permission.BIND_JOB_SERVICE" />
+
         <provider
             android:name="android.support.v4.content.FileProvider"
             android:authorities="com.example.yuzur.fileprovider"
@@ -69,6 +72,7 @@
                 android:resource="@xml/file_paths">
             </meta-data>
         </provider>
+
     </application>
 
 </manifest>
