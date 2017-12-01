@@ -50,7 +50,9 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".CameraActivity">
+        <activity
+            android:name=".CameraActivity"
+            android:label="@string/title_activity_camera">
             <intent-filter>
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
@@ -62,10 +64,14 @@
             android:screenOrientation="portrait">
         </activity>
 
+        <activity
+            android:name=".SettingsActivity"
+            android:label="@string/title_activity_settings"
+            android:screenOrientation="portrait">
+        </activity>
 
         <service android:name=".UploadFileService"
             android:permission="android.permission.BIND_JOB_SERVICE" />
-        <activity android:name=".SettingsActivity"></activity>
 
         <provider
             android:name="android.support.v4.content.FileProvider"

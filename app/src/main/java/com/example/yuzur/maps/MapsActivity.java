@@ -60,11 +60,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         SensorEventListener,
         LocationListener {
 
-    private final int HOME = 0;
-    private final int TAKE_PICTURE = 1;
-    private final int SETTINGS = 2;
-    private final int ABOUT = 3;
-
     private GoogleMap mMap;
     private GoogleApiClient client;
     private LocationRequest locationRequest;
@@ -77,11 +72,10 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     public static final int REQUEST_LOCATION_CODE = 99;
     private static final String TAG = MapsActivity.class.getSimpleName();
 
+    private DrawerManager mDrawerManager;
     private DrawerLayout mDrawerLayout;
     private ListView mDrawerList;
-    private String[] mNavMenuOptions;
     private ActionBarDrawerToggle mDrawerToggle;
-
 
     /*Values*/
     private SensorManager mSensorManager;
@@ -111,56 +105,10 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setHomeButtonEnabled(true);
-
-        mNavMenuOptions = getResources().getStringArray(R.array.nav_menu);
+        mDrawerManager = new DrawerManager(this);
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         mDrawerList = (ListView) findViewById(R.id.navList);
-
-        // Set the adapter for the list view
-        mDrawerList.setAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, mNavMenuOptions));
-        // Set the list's click listener
-        mDrawerList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                Log.d(TAG, "item " + i + " clicked");
-
-                switch (i) {
-                    case HOME:
-                        break;
-                    case TAKE_PICTURE:
-                        startPictureIntent();
-                        break;
-                    case SETTINGS:
-                        openSettings();
-                        break;
-                    case ABOUT:
-                        openAbout();
-                }
-            }
-        });
-
-        mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout,
-                R.string.drawer_open, R.string.drawer_close) {
-
-            /** Called when a drawer has settled in a completely open state. */
-            public void onDrawerOpened(View drawerView) {
-                super.onDrawerOpened(drawerView);
-                getSupportActionBar().setTitle("Navigation");
-                invalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
-            }
-
-            /** Called when a drawer has settled in a completely closed state. */
-            public void onDrawerClosed(View view) {
-                super.onDrawerClosed(view);
-                getSupportActionBar().setTitle(getTitle().toString());
-                invalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
-            }
-        };
-
-        mDrawerToggle.setDrawerIndicatorEnabled(true);
-        mDrawerLayout.addDrawerListener(mDrawerToggle);
+        mDrawerToggle = mDrawerManager.setUpDrawer(mDrawerLayout, mDrawerList, DrawerManager.HOME);
 
         PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
     }
@@ -381,7 +329,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
             startPictureIntent();
         }
-
     }
 
     private void startPictureIntent() {
@@ -394,18 +341,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         startActivity(i);
     }
-
-    private void openSettings() {
-        Intent i = new Intent(MapsActivity.this, SettingsActivity.class);
-        startActivity(i);
-    }
-
-    private void openAbout(){
-        Intent i = new Intent(MapsActivity.this, AboutActivity.class);
-        startActivity(i);
-    }
-
-
 
     /*
     public void onClick(View v){
