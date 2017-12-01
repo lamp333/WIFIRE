@@ -32,9 +32,11 @@ import android.widget.Toast;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.Properties;
 
 public class CameraActivity extends AppCompatActivity {
     private Button takePictureButton;
@@ -162,6 +164,15 @@ public class CameraActivity extends AppCompatActivity {
         return sb.toString();
     }
 
+    public String getProperty(String key) throws IOException {
+        Properties properties = new Properties();
+        InputStream inputStream = this.getAssets().open("config.properties");
+        properties.load(inputStream);
+        return properties.getProperty(key);
+
+    }
+
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data){
         if (requestCode == 100) {
@@ -192,7 +203,9 @@ public class CameraActivity extends AppCompatActivity {
                     //Pass in file path as a Persistable bundle to job service
                     PersistableBundle bundle = new PersistableBundle();
                     bundle.putString("input", path);
-                    bundle.putString("context", getApplicationContext().toString());
+                    bundle.putString("user", getProperty("user"));
+                    bundle.putString("publicKey", getProperty("publicKey"));
+                    bundle.putString("privateKey", getProperty("privateKey"));
 
                     ComponentName serviceComponent = new ComponentName( getPackageName(), UploadFileService.class.getName() );
                     JobInfo.Builder builder = new JobInfo.Builder( id, serviceComponent)
