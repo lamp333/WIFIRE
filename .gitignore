@@ -7,4 +7,5 @@
 .DS_Store
 /build
 /captures
+app/src/main/assets/config.properties
 .externalNativeBuild

@@ -4,6 +4,7 @@ import android.app.NotificationManager;
 import android.app.job.JobParameters;
 import android.app.job.JobService;
 import android.content.Context;
+import android.content.res.AssetManager;
 import android.os.AsyncTask;
 import android.os.Handler;
 import android.os.Message;
@@ -12,11 +13,14 @@ import android.util.Log;
 import android.widget.Toast;
 
 import org.apache.commons.codec.binary.Hex;
+import org.apache.commons.io.IOUtils;
 
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
@@ -27,25 +31,17 @@ import java.security.NoSuchAlgorithmException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Properties;
 import java.util.SimpleTimeZone;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 
-/**
- * Created by Chris Ozawa on 11/30/2017.
- */
-
 public class UploadFileService extends JobService {
     private static final String TAG = MapsActivity.class.getSimpleName();
 
-    private static final String user = "wifire";
-    private static final String publicKey = "firepix";
-    private static final String privateKey = "pe30Jwc88Shdj6dxyrgfQw5xFHGd6iq-k1RuGHt7KQk";
 
-    String lineEnd = "\r\n";
-    String twoHyphens = "--";
-    String boundary = "*****";
+
 
     public String encode(String key, String data) {
         try {
@@ -82,6 +78,10 @@ public class UploadFileService extends JobService {
                 String timestamp = sdf.format(date);
 
                 try {
+                    final String user = (String) params.getExtras().get("user");
+                    final String publicKey = (String) params.getExtras().get("publicKey");
+                    final String privateKey = (String) params.getExtras().get("privateKey");
+
                     String url_String = String.format("https://swat.sdsc.edu:5443/users/%s/images?publicKey=%s",user, publicKey);
                     URL url = new URL(url_String);
 
@@ -98,39 +98,12 @@ public class UploadFileService extends JobService {
 
 
                     //Write data
-                    DataOutputStream dos = new DataOutputStream(connection.getOutputStream());
-                    File image = new File((String)params.getExtras().get("input"));
-                    FileInputStream fileInputStream = new FileInputStream(image);
-
-                    dos.writeBytes(twoHyphens + boundary + lineEnd);
-                    dos.writeBytes("Content-Disposition: form-data; name=\"" +
-                            "uploaded_file" + "\";filename=\"" +
-                            image.getName() + "\"" + lineEnd);
-                    Log.d(TAG, image.getName());
-                    dos.writeBytes(lineEnd);
-
-
-                    int bufferSize = fileInputStream.available();
-                    byte[] buffer = new byte[bufferSize];
-                    int bytesRead = fileInputStream.read(buffer, 0, bufferSize);
-
-                    while (bytesRead > 0)
-                    {
-                        dos.write(buffer, 0, bufferSize);
-                        bufferSize = fileInputStream.available();
-                        bytesRead = fileInputStream.read(buffer, 0, bufferSize);
-                    }
-
-                    dos.writeBytes(lineEnd);
-                    dos.writeBytes(twoHyphens + boundary + twoHyphens + lineEnd);
-
+                    FileInputStream instream = new FileInputStream((String)params.getExtras().get("input"));
+                    IOUtils.copy(instream, connection.getOutputStream());
 
                     //Server Response
-                    String serverResponseMessage = connection.getResponseMessage();
-                    Log.wtf(TAG, "Server Response: " +serverResponseMessage);
-                    fileInputStream.close();
-                    dos.flush();
-                    dos.close();
+                    String res = IOUtils.toString(connection.getInputStream());
+                    Log.wtf(TAG,"Response: " + res);
 
                 }
                 catch ( MalformedURLException e){
