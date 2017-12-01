@@ -200,10 +200,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             sm.registerListener(this, sm.getDefaultSensor(Sensor.TYPE_ACCELEROMETER), SensorManager.SENSOR_DELAY_NORMAL);
             sm.registerListener(this, sm.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD), SensorManager.SENSOR_DELAY_NORMAL);
         }
-
-
     }
-
 
     @Override
     public void onConnected(@Nullable Bundle bundle) {
@@ -326,7 +323,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     public void onClick(View v) {
         if(v.getId() == R.id.picture_button){
-
             startPictureIntent();
         }
     }
