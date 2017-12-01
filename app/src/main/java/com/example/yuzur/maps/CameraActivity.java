@@ -3,6 +3,9 @@
 package com.example.yuzur.maps;
 
 import android.Manifest;
+import android.app.job.JobInfo;
+import android.app.job.JobScheduler;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -11,6 +14,7 @@ import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
+import android.os.PersistableBundle;
 import android.provider.MediaStore;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -31,12 +35,14 @@ import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 
 public class CameraActivity extends AppCompatActivity {
     private Button takePictureButton;
     private ImageView imageView;
     private Uri file;
     private static final String TAG = CameraActivity.class.getSimpleName();
+    private JobScheduler mJobScheduler;
 
     double direction = 0;
     double longitude = 0;
@@ -52,6 +58,7 @@ public class CameraActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        mJobScheduler = (JobScheduler) getSystemService( Context.JOB_SCHEDULER_SERVICE );
         setContentView(R.layout.activity_camera);
         Intent i = getIntent();
         direction = i.getDoubleExtra("direction", 300.0);
@@ -174,6 +181,25 @@ public class CameraActivity extends AppCompatActivity {
                     header.setAttribute(ExifInterface.TAG_GPS_LONGITUDE, convert(longitude));
                     header.setAttribute(ExifInterface.TAG_GPS_ALTITUDE, (int)altitude+"/1");
                     header.saveAttributes();
+                    List<JobInfo> activeJobs = mJobScheduler.getAllPendingJobs();
+                    int id = 1;
+                    if(activeJobs.size() != 0)
+                        id = activeJobs.get(activeJobs.size() - 1).getId() + 1;
+
+                    JobInfo.Builder builder = new JobInfo.Builder( id,
+                            new ComponentName( getPackageName(),
+                                    UploadFileService.class.getName() ) );
+                    builder.setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY);
+                    PersistableBundle bundle = new PersistableBundle();
+                    bundle.putString("input", path);
+                    bundle.putString("context", getApplicationContext().toString());
+                    builder.setExtras(bundle);
+                    int result = (int) mJobScheduler.schedule(builder.build());
+                    if(result <= 0)
+                        Log.wtf(TAG, "failed to schedule");
+
+                    else
+                        Log.wtf(TAG, "successfully scheduled");
 
                 }
                 catch (IOException e){
