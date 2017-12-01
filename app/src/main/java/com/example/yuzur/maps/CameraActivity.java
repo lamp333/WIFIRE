@@ -1,4 +1,3 @@
-//Referenced the following tutorial: https://androidkennel.org/android-camera-access-tutorial/
 
 package com.example.yuzur.maps;
 
@@ -72,7 +71,7 @@ public class CameraActivity extends AppCompatActivity {
 
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
             takePictureButton.setEnabled(false);
-            ActivityCompat.requestPermissions(this, new String[] { Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE , Manifest.permission.READ_EXTERNAL_STORAGE}, 0);
+            ActivityCompat.requestPermissions(this, new String[] { Manifest.permission.RECEIVE_BOOT_COMPLETED ,Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE , Manifest.permission.READ_EXTERNAL_STORAGE}, 0);
         }
 
         mDrawerManager = new DrawerManager(this);
@@ -176,30 +175,34 @@ public class CameraActivity extends AppCompatActivity {
                     else{
                         path = file.getPath();
                     }
+                    //Set Exif Headers in image
                     ExifInterface header = new ExifInterface(path);
                     header.setAttribute(ExifInterface.TAG_GPS_LATITUDE, convert(latitude));
                     header.setAttribute(ExifInterface.TAG_GPS_LONGITUDE, convert(longitude));
                     header.setAttribute(ExifInterface.TAG_GPS_ALTITUDE, (int)altitude+"/1");
+                    header.setAttribute("UserComment", "direction: " + (int)direction);
                     header.saveAttributes();
+
+                    //Set unique ID for job ID
                     List<JobInfo> activeJobs = mJobScheduler.getAllPendingJobs();
                     int id = 1;
                     if(activeJobs.size() != 0)
                         id = activeJobs.get(activeJobs.size() - 1).getId() + 1;
 
-                    JobInfo.Builder builder = new JobInfo.Builder( id,
-                            new ComponentName( getPackageName(),
-                                    UploadFileService.class.getName() ) );
-                    builder.setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY);
+                    //Pass in file path as a Persistable bundle to job service
                     PersistableBundle bundle = new PersistableBundle();
                     bundle.putString("input", path);
                     bundle.putString("context", getApplicationContext().toString());
-                    builder.setExtras(bundle);
-                    int result = (int) mJobScheduler.schedule(builder.build());
+
+                    ComponentName serviceComponent = new ComponentName( getPackageName(), UploadFileService.class.getName() );
+                    JobInfo.Builder builder = new JobInfo.Builder( id, serviceComponent)
+                                    .setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
+                                    .setExtras(bundle)
+                                    .setPersisted(true);
+                    //Schedule the job
+                    int result = mJobScheduler.schedule(builder.build());
                     if(result <= 0)
                         Log.wtf(TAG, "failed to schedule");
-
-                    else
-                        Log.wtf(TAG, "successfully scheduled");
 
                 }
                 catch (IOException e){
