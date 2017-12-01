@@ -106,6 +106,7 @@ public class UploadFileService extends JobService {
                     dos.writeBytes("Content-Disposition: form-data; name=\"" +
                             "uploaded_file" + "\";filename=\"" +
                             image.getName() + "\"" + lineEnd);
+                    Log.d(TAG, image.getName());
                     dos.writeBytes(lineEnd);
 
 

@@ -9,6 +9,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
 import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.Build;
@@ -31,7 +34,11 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.URI;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
@@ -73,6 +80,9 @@ public class CameraActivity extends AppCompatActivity {
             takePictureButton.setEnabled(false);
             ActivityCompat.requestPermissions(this, new String[] { Manifest.permission.RECEIVE_BOOT_COMPLETED ,Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE , Manifest.permission.READ_EXTERNAL_STORAGE}, 0);
         }
+        else {
+            takePicture(takePictureButton);
+        }
 
         mDrawerManager = new DrawerManager(this);
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -102,6 +112,9 @@ public class CameraActivity extends AppCompatActivity {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED
                     && grantResults[1] == PackageManager.PERMISSION_GRANTED) {
                 takePictureButton.setEnabled(true);
+                takePicture(takePictureButton);
+            } else {
+                Toast.makeText(this, "Please enable camera permissions to take a picture.", Toast.LENGTH_LONG).show();
             }
         }
     }
@@ -166,7 +179,7 @@ public class CameraActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data){
         if (requestCode == 100) {
             if (resultCode == RESULT_OK) {
-                imageView.setImageURI(file);
+                rotateImage(file);
                 try {
                     String path = "";
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
@@ -212,8 +225,51 @@ public class CameraActivity extends AppCompatActivity {
                 addPhotoToGallery();
             }
         }
+    }
 
+    private void rotateImage(Uri imageUri) {
+        InputStream input = null;
+        try {
+            input = getContentResolver().openInputStream(imageUri);
 
+            ExifInterface ei;
+            if (Build.VERSION.SDK_INT > 23) {
+                ei = new ExifInterface(input);
+            } else {
+                ei = new ExifInterface(imageUri.getPath());
+            }
+
+            int orientation = ei.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
+            Bitmap img = MediaStore.Images.Media.getBitmap(this.getContentResolver(), imageUri);
+
+            Log.d(TAG, "orientation " + orientation);
+            switch (orientation) {
+                case ExifInterface.ORIENTATION_ROTATE_90:
+                    rotateImage(file, img, 90);
+                    break;
+                case ExifInterface.ORIENTATION_ROTATE_180:
+                    rotateImage(file, img, 180);
+                    break;
+                case ExifInterface.ORIENTATION_ROTATE_270:
+                    rotateImage(file, img, 270);
+                    break;
+                default:
+                    rotateImage(file, img, 0);
+            }
+        } catch (FileNotFoundException e) {
+            Log.e(TAG, "Error: cannot find image uri");
+        } catch (IOException e) {
+            Log.e(TAG, "Error: IOException");
+        }
+    }
+
+    private void rotateImage(Uri file, Bitmap img, int degree) {
+        Matrix matrix = new Matrix();
+        matrix.postRotate(degree);
+        Bitmap rotatedImg = Bitmap.createBitmap(img, 0, 0, img.getWidth(), img.getHeight(), matrix, true);
+        img.recycle();
+
+        imageView.setImageBitmap(rotatedImg);
     }
 
 }
