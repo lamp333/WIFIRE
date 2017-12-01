@@ -7,7 +7,6 @@
 
     <string-array name="nav_menu">
         <item>Home</item>
-        <item>Take Picture</item>
         <item>Settings</item>
         <item>About</item>
     </string-array>
