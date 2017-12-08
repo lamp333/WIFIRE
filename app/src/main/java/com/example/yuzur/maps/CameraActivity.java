@@ -7,6 +7,7 @@ import android.app.job.JobScheduler;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
@@ -21,6 +22,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
 import android.os.PersistableBundle;
+import android.preference.PreferenceManager;
 import android.provider.MediaStore;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -230,19 +232,32 @@ public class CameraActivity extends AppCompatActivity implements SensorEventList
                     if(activeJobs.size() != 0)
                         id = activeJobs.get(activeJobs.size() - 1).getId() + 1;
 
+                    SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
+                    boolean delete = sharedPref.getBoolean("photo_delete", false);
+                    boolean wifi = sharedPref.getBoolean("wi_fi_only", false);
+                    int networkType = 0;
+                    if(wifi) {
+                        networkType = JobInfo.NETWORK_TYPE_UNMETERED;
+                    }
+
+                    else {
+                        networkType = JobInfo.NETWORK_TYPE_ANY;
+                    }
                     //Pass in file path as a Persistable bundle to job service
                     PersistableBundle bundle = new PersistableBundle();
                     bundle.putString("input", path);
                     bundle.putString("user", getProperty("user"));
                     bundle.putString("publicKey", getProperty("publicKey"));
                     bundle.putString("privateKey", getProperty("privateKey"));
+                    bundle.putString("delete", delete + "");
 
                     ComponentName serviceComponent = new ComponentName( getPackageName(), UploadFileService.class.getName() );
                     JobInfo.Builder builder = new JobInfo.Builder( id, serviceComponent)
-                                    .setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
+                                    .setRequiredNetworkType(networkType)
                                     .setExtras(bundle)
                                     .setPersisted(true);
                     //Schedule the job
+                    Log.wtf(TAG, "wi_fi_only: " + wifi + " delete:" + delete);
                     int result = mJobScheduler.schedule(builder.build());
                     if(result <= 0)
                         Log.wtf(TAG, "failed to schedule");
