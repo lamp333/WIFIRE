@@ -266,6 +266,7 @@ public class CameraActivity extends AppCompatActivity {
                     break;
                 default:
                     rotateImage(file, img, 0);
+                    break;
             }
         } catch (FileNotFoundException e) {
             Log.e(TAG, "Error: cannot find image uri");
@@ -278,8 +279,7 @@ public class CameraActivity extends AppCompatActivity {
         Matrix matrix = new Matrix();
         matrix.postRotate(degree);
         Bitmap rotatedImg = Bitmap.createBitmap(img, 0, 0, img.getWidth(), img.getHeight(), matrix, true);
-        img.recycle();
-
+        imageView.setImageBitmap(null);
         imageView.setImageBitmap(rotatedImg);
     }
 
