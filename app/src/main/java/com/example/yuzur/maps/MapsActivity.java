@@ -2,6 +2,7 @@ package com.example.yuzur.maps;
 
 import android.Manifest;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Build;
@@ -241,6 +242,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     public void onClick(View v) {
         if(v.getId() == R.id.picture_button){
+
             startPictureIntent();
         }
     }

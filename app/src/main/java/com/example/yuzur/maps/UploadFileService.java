@@ -4,10 +4,12 @@ import android.app.NotificationManager;
 import android.app.job.JobParameters;
 import android.app.job.JobService;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.content.res.AssetManager;
 import android.os.AsyncTask;
 import android.os.Handler;
 import android.os.Message;
+import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 import android.widget.Toast;
@@ -105,6 +107,7 @@ public class UploadFileService extends JobService {
                     String res = IOUtils.toString(connection.getInputStream());
                     Log.wtf(TAG,"Response: " + res);
 
+
                 }
                 catch ( MalformedURLException e){
                     Log.wtf(TAG, "Bad URL");
@@ -116,6 +119,12 @@ public class UploadFileService extends JobService {
                     if ( connection != null){
                         connection.disconnect();
                         Log.wtf(TAG, (String) params.getExtras().get("input"));
+                        if(params.getExtras().get("delete").equals("true"))
+                        {
+                            File image = new File((String) params.getExtras().get("input"));
+                            image.delete();
+                        }
+
                         jobFinished(params, false);
                     }
                 }
