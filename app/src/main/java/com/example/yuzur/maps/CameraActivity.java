@@ -12,6 +12,10 @@ import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.Build;
@@ -31,6 +35,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.File;
@@ -43,14 +48,13 @@ import java.util.Date;
 import java.util.List;
 import java.util.Properties;
 
-public class CameraActivity extends AppCompatActivity {
+public class CameraActivity extends AppCompatActivity implements SensorEventListener {
     private Button takePictureButton;
     private ImageView imageView;
     private Uri file;
     private static final String TAG = CameraActivity.class.getSimpleName();
     private JobScheduler mJobScheduler;
 
-    double direction = 0;
     double longitude = 0;
     double latitude = 0;
     double altitude = 0;
@@ -61,13 +65,22 @@ public class CameraActivity extends AppCompatActivity {
     private ListView mDrawerList;
     private ActionBarDrawerToggle mDrawerToggle;
 
+    /*Values*/
+    float[] inR = new float[16];
+    float[] I = new float[16];
+    float[] gravity = new float[3];
+    float[] geomag = new float[3];
+    float[] orientVals = new float[3];
+    double azimuth = 0;
+    double pitch = 0;
+    double roll = 0;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mJobScheduler = (JobScheduler) getSystemService( Context.JOB_SCHEDULER_SERVICE );
         setContentView(R.layout.activity_camera);
         Intent i = getIntent();
-        direction = i.getDoubleExtra("direction", 300.0);
         longitude = i.getDoubleExtra("longitude", 0);
         latitude = i.getDoubleExtra("latitude", 0);
         altitude = i.getDoubleExtra("altitude", 0);
@@ -88,6 +101,11 @@ public class CameraActivity extends AppCompatActivity {
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         mDrawerList = (ListView) findViewById(R.id.navList);
         mDrawerToggle = mDrawerManager.setUpDrawer(mDrawerLayout, mDrawerList, DrawerManager.CAMERA);
+
+        SensorManager sm = (SensorManager) getSystemService(SENSOR_SERVICE);
+        sm.registerListener(this, sm.getDefaultSensor(Sensor.TYPE_ACCELEROMETER), SensorManager.SENSOR_DELAY_NORMAL);
+        sm.registerListener(this, sm.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD), SensorManager.SENSOR_DELAY_NORMAL);
+
     }
 
     @Override
@@ -128,7 +146,7 @@ public class CameraActivity extends AppCompatActivity {
         else{
             file = Uri.fromFile(f);
         }
-
+        Toast.makeText(this, ""+(int) azimuth, Toast.LENGTH_LONG).show();
         intent.putExtra(MediaStore.EXTRA_OUTPUT, file);
         startActivityForResult(intent, 100);
     }
@@ -202,9 +220,10 @@ public class CameraActivity extends AppCompatActivity {
                     header.setAttribute(ExifInterface.TAG_GPS_LATITUDE, convert(latitude));
                     header.setAttribute(ExifInterface.TAG_GPS_LONGITUDE, convert(longitude));
                     header.setAttribute(ExifInterface.TAG_GPS_ALTITUDE, (int)altitude+"/1");
-                    header.setAttribute("UserComment", "direction: " + (int)direction);
+                    header.setAttribute("UserComment", "direction: " + (int)azimuth);
                     header.saveAttributes();
 
+                    Toast.makeText(this, ""+(int) azimuth, Toast.LENGTH_LONG).show();
                     //Set unique ID for job ID
                     List<JobInfo> activeJobs = mJobScheduler.getAllPendingJobs();
                     int id = 1;
@@ -283,4 +302,48 @@ public class CameraActivity extends AppCompatActivity {
         imageView.setImageBitmap(rotatedImg);
     }
 
+    @Override
+    public void onSensorChanged(SensorEvent sensorEvent) {
+        // If the sensor data is unreliable return
+        boolean unreliable = false;
+        if (sensorEvent.accuracy == SensorManager.SENSOR_STATUS_UNRELIABLE) {
+            unreliable = true;
+        }
+
+        // Gets the value of the sensor that has been changed
+        switch (sensorEvent.sensor.getType()) {
+            case Sensor.TYPE_ACCELEROMETER:
+                gravity = sensorEvent.values.clone();
+                break;
+            case Sensor.TYPE_MAGNETIC_FIELD:
+                geomag = sensorEvent.values.clone();
+                break;
+        }
+
+        // If gravity and geomag have values then find rotation matrix
+        if (gravity != null && geomag != null) {
+
+            // checks that the rotation matrix is found
+            boolean success = SensorManager.getRotationMatrix(inR, I,
+                    gravity, geomag);
+            if (success) {
+                SensorManager.getOrientation(inR, orientVals);
+                azimuth =  Math.toDegrees(orientVals[0]);
+                pitch = Math.toDegrees(orientVals[1]);
+                roll = Math.toDegrees(orientVals[2]);
+                TextView TV_Warning = (TextView) findViewById((R.id.TV_Warning));
+                if(unreliable){
+                    //TV_Warning.setText("Sensor: unreliable");
+                }
+                else{
+                    //TV_Warning.setText("Sensor: reliable");
+                }
+            }
+        }
+    }
+
+    @Override
+    public void onAccuracyChanged(Sensor sensor, int i) {
+
+    }
 }

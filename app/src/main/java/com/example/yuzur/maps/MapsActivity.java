@@ -1,37 +1,21 @@
 package com.example.yuzur.maps;
 
 import android.Manifest;
-import android.app.job.JobInfo;
-import android.app.job.JobScheduler;
-import android.content.ComponentName;
-import android.content.Context;
 import android.content.Intent;
-import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
-import android.graphics.Color;
-import android.hardware.Sensor;
-import android.hardware.SensorEvent;
-import android.hardware.SensorEventListener;
-import android.hardware.SensorManager;
 import android.location.Location;
 import android.os.Build;
-import android.os.PersistableBundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.MenuItem;
-import android.view.OrientationEventListener;
 import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -45,9 +29,6 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
-import com.google.android.gms.maps.model.Circle;
-import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 
 
@@ -57,15 +38,11 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener,
         GoogleMap.OnCameraMoveStartedListener,
-        SensorEventListener,
         LocationListener {
 
     private GoogleMap mMap;
     private GoogleApiClient client;
     private LocationRequest locationRequest;
-    private Location lastLocation;
-    private Circle accuracyRange;
-    private Circle currentPosition;
     private boolean mLocationPermissionGranted = false;
     private boolean setup = true;
     private boolean followUserLocation = true;
@@ -78,15 +55,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     private ActionBarDrawerToggle mDrawerToggle;
 
     /*Values*/
-    private SensorManager mSensorManager;
-    float[] inR = new float[16];
-    float[] I = new float[16];
-    float[] gravity = new float[3];
-    float[] geomag = new float[3];
-    float[] orientVals = new float[3];
-    double azimuth = 0;
-    double pitch = 0;
-    double roll = 0;
+
     double longitude = 0;
     double latitude = 0;
     double altitude = 0;
@@ -196,9 +165,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             mMap.setMyLocationEnabled(true);
             mMap.setOnMyLocationButtonClickListener(this);
             mMap.setOnCameraMoveStartedListener(this);
-            SensorManager sm = (SensorManager) getSystemService(SENSOR_SERVICE);
-            sm.registerListener(this, sm.getDefaultSensor(Sensor.TYPE_ACCELEROMETER), SensorManager.SENSOR_DELAY_NORMAL);
-            sm.registerListener(this, sm.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD), SensorManager.SENSOR_DELAY_NORMAL);
+
         }
     }
 
@@ -226,7 +193,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     @Override
     public void onLocationChanged(Location location) {
-        lastLocation = location;
         LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
         latitude = location.getLatitude();
         longitude =  location.getLongitude();
@@ -272,54 +238,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
     }
 
-    @Override
-    public void onSensorChanged(SensorEvent sensorEvent) {
-// If the sensor data is unreliable return
-        boolean unreliable = false;
-        if (sensorEvent.accuracy == SensorManager.SENSOR_STATUS_UNRELIABLE) {
-            unreliable = true;
-        }
-
-        // Gets the value of the sensor that has been changed
-        switch (sensorEvent.sensor.getType()) {
-            case Sensor.TYPE_ACCELEROMETER:
-                gravity = sensorEvent.values.clone();
-                break;
-            case Sensor.TYPE_MAGNETIC_FIELD:
-                geomag = sensorEvent.values.clone();
-                break;
-        }
-
-        // If gravity and geomag have values then find rotation matrix
-        if (gravity != null && geomag != null) {
-
-            // checks that the rotation matrix is found
-            boolean success = SensorManager.getRotationMatrix(inR, I,
-                    gravity, geomag);
-            if (success) {
-                SensorManager.getOrientation(inR, orientVals);
-                azimuth =  Math.toDegrees(orientVals[0]);
-                pitch = Math.toDegrees(orientVals[1]);
-                roll = Math.toDegrees(orientVals[2]);
-                TextView TV_Warning = (TextView) findViewById((R.id.TV_Warning));
-                if(unreliable){
-                    TV_Warning.setText("Sensor: unreliable");
-                }
-                else{
-                    TV_Warning.setText("Sensor: reliable");
-                }
-                TextView TV_Orientation = (TextView) findViewById((R.id.TV_Orientation));
-                TV_Orientation.setText("azimuth: " + (int) azimuth + "\n" +
-                        "pitch: " + (int) pitch + "\n" +
-                        "roll: " + (int) roll + "\n");
-            }
-        }
-    }
-
-    @Override
-    public void onAccuracyChanged(Sensor sensor, int accuracy) {
-
-    }
 
     public void onClick(View v) {
         if(v.getId() == R.id.picture_button){
@@ -333,38 +251,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         i.putExtra("latitude", latitude);
         i.putExtra("altitude", altitude);
         i.putExtra("accuracy", accuracy);
-        i.putExtra("direction", azimuth);
 
         startActivity(i);
     }
-
-    /*
-    public void onClick(View v){
-        if(v.getId() == R.id.B_search){
-            EditText tf_location = (EditText) findViewById((R.id.TF_location));
-            String location = tf_location.getText().toString();
-            MarkerOptions mo = new MarkerOptions();
-            List<Address> addressList = null;
-            if (!location.equals("")){
-                Geocoder geocoder = new Geocoder(this);
-
-                try {
-                    addressList = geocoder.getFromLocationName(location, 5);
-                } catch (IOException e) {
-             =        e.printStackTrace();
-                }
-
-                for(int i = 0; i < addressList.size(); i++){
-                    Address myaddress = addressList.get(i);
-                    LatLng latLng = new LatLng(myaddress.getLatitude(), myaddress.getLongitude());
-                    mo.position(latLng);
-                    mo.title("Results");
-                    mMap.addMarker(mo);
-                    mMap.animateCamera(CameraUpdateFactory.newLatLng(latLng));
-                }
-
-            }
-        }
-    }*/
 
 }
