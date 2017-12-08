@@ -199,14 +199,14 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         altitude = location.getAltitude();
         accuracy = location.getAltitude();
 
-        TextView TV_Location = (TextView) findViewById((R.id.TV_Location));
+        /*TextView TV_Location = (TextView) findViewById((R.id.TV_Location));
 
         TV_Location.setText("Lat: " + (float) ((int) (location.getLatitude() * 100)) / 100 + "\n" +
                 "Lon: " + (float) ((int) (location.getLongitude() * 100)) / 100 + "\n" +
                 "Altitude: " + (float) ((int) (location.getAltitude() * 100)) / 100 + "meters");
 
         TextView TV_Accuracy = (TextView) findViewById((R.id.TV_Accuracy));
-        TV_Accuracy.setText("Radius: " + location.getAccuracy() + " meters");
+        TV_Accuracy.setText("Radius: " + location.getAccuracy() + " meters"); */
 
 
         if (setup) {

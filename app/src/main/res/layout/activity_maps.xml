@@ -14,80 +14,18 @@
             android:id="@+id/map"
             android:name="com.google.android.gms.maps.SupportMapFragment"
             android:layout_width="match_parent"
-            android:layout_height="450dp"
+            android:layout_height="match_parent"
             android:layout_alignParentLeft="true"
             android:layout_alignParentStart="true"
             android:layout_alignParentTop="true"
             android:gravity="top"
             tools:context="com.example.yuzur.maps.MapsActivity" />
 
-
-        <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-            android:id="@+id/linearLayout"
-            android:layout_width="match_parent"
-            android:layout_height="100dp"
-            android:layout_alignParentBottom="true"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentStart="true"
-            android:layout_below="@+id/map"
-            android:gravity="top"
-            android:orientation="horizontal"
-            android:weightSum="2">
-
-
-            <LinearLayout
-                android:layout_width="fill_parent"
-                android:layout_height="fill_parent"
-                android:layout_weight="1"
-                android:background="#637ca5"
-                android:orientation="vertical">
-
-                <TextView
-                    android:id="@+id/TV_Location"
-                    android:layout_width="match_parent"
-                    android:layout_height="50dp"
-                    android:text=""
-                    android:textColor="#ffffff" />
-
-                <TextView
-                    android:id="@+id/TV_Accuracy"
-                    android:layout_width="match_parent"
-                    android:layout_height="50dp"
-                    android:text=""
-                    android:textColor="#ffffff" />
-            </LinearLayout>
-
-
-            <LinearLayout
-                android:layout_width="fill_parent"
-                android:layout_height="fill_parent"
-                android:layout_weight="1"
-                android:background="#637ca5"
-                android:orientation="vertical">
-
-                <TextView
-                    android:id="@+id/TV_Orientation"
-                    android:layout_width="match_parent"
-                    android:layout_height="50dp"
-                    android:text=""
-                    android:textColor="#ffffff" />
-
-                <TextView
-                    android:id="@+id/TV_Warning"
-                    android:layout_width="match_parent"
-                    android:layout_height="50dp"
-                    android:text=""
-                    android:textColor="#ffffff" />
-            </LinearLayout>
-
-
-        </LinearLayout>
-
         <Button
             android:id="@+id/picture_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_above="@+id/linearLayout"
+            android:layout_alignParentBottom="true"
             android:layout_centerHorizontal="true"
             android:onClick="onClick"
             android:text="Take Picture" />

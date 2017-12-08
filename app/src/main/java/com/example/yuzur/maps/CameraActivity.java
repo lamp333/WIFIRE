@@ -74,6 +74,7 @@ public class CameraActivity extends AppCompatActivity implements SensorEventList
     double azimuth = 0;
     double pitch = 0;
     double roll = 0;
+    boolean unreliable = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -138,6 +139,10 @@ public class CameraActivity extends AppCompatActivity implements SensorEventList
     }
 
     public void takePicture(View view) {
+        if(unreliable) {
+            Toast.makeText(this, R.string.sensor_warning, Toast.LENGTH_LONG).show();
+        }
+
         Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         File f = getOutputMediaFile();
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
@@ -305,7 +310,6 @@ public class CameraActivity extends AppCompatActivity implements SensorEventList
     @Override
     public void onSensorChanged(SensorEvent sensorEvent) {
         // If the sensor data is unreliable return
-        boolean unreliable = false;
         if (sensorEvent.accuracy == SensorManager.SENSOR_STATUS_UNRELIABLE) {
             unreliable = true;
         }
@@ -331,7 +335,7 @@ public class CameraActivity extends AppCompatActivity implements SensorEventList
                 azimuth =  Math.toDegrees(orientVals[0]);
                 pitch = Math.toDegrees(orientVals[1]);
                 roll = Math.toDegrees(orientVals[2]);
-                TextView TV_Warning = (TextView) findViewById((R.id.TV_Warning));
+                //TextView TV_Warning = (TextView) findViewById((R.id.TV_Warning));
                 if(unreliable){
                     //TV_Warning.setText("Sensor: unreliable");
                 }
