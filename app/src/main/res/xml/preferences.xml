@@ -1,10 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
     <CheckBoxPreference
+        android:key="wi_fi_only"
         android:title="Wi-Fi Only"
         android:summary="Will only upload pictures to server if wi-fi is enabled"
         android:defaultValue="false" />
     <CheckBoxPreference
+        android:key="photo_delete"
         android:title="Photo Removal"
         android:summary="Deletes photo from phone after uploading to server"
         android:defaultValue="false" />

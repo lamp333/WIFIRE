@@ -14,5 +14,13 @@
     <string name="drawer_open">Open navigation drawer</string>
     <string name="drawer_close">Close navigation drawer</string>
 
-    <string name="about_content">Replace this text with content to be placed on the about page. \n New paragraph.</string>
+    <string name="about_content">WIFIRE is a wildfire analysis system that uses satellite and sensor data to
+        monitor weather patterns, which can be used to predict the spread of wildfires.
+
+        \n\nThe purpose of this app is to allow users near wildfire sites to take pictures of the fires and send
+        these pictures to our servers.  These pictures can give us more useful data about fires beyond what the
+        satellites can capture, which will be very helpful in future fire predictions.
+
+        \n\nFor more information about WIFIRE, visit wifire.ucsd.edu
+    </string>
 </resources>
