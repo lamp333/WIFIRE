@@ -141,10 +141,6 @@ public class CameraActivity extends AppCompatActivity implements SensorEventList
     }
 
     public void takePicture(View view) {
-        if(unreliable) {
-            Toast.makeText(this, R.string.sensor_warning, Toast.LENGTH_LONG).show();
-        }
-
         Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         File f = getOutputMediaFile();
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
@@ -153,7 +149,6 @@ public class CameraActivity extends AppCompatActivity implements SensorEventList
         else{
             file = Uri.fromFile(f);
         }
-        Toast.makeText(this, ""+(int) azimuth, Toast.LENGTH_LONG).show();
         intent.putExtra(MediaStore.EXTRA_OUTPUT, file);
         startActivityForResult(intent, 100);
     }

@@ -15,7 +15,8 @@
     <string name="drawer_close">Close navigation drawer</string>
 
     <string name="sensor_warning">Warning: Your phone sensors may be unreliable.</string>
-
+    <string name="sensor_reliable">Sensor: reliable</string>
+    <string name="sensor_unreliable">Sensor: unreliable</string>
     <string name="about_content">WIFIRE is a wildfire analysis system that uses satellite and sensor data to
         monitor weather patterns, which can be used to predict the spread of wildfires.
 

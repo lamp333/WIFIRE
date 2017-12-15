@@ -4,6 +4,10 @@ import android.Manifest;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.location.Location;
 import android.os.Build;
 import android.preference.PreferenceManager;
@@ -39,6 +43,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener,
         GoogleMap.OnCameraMoveStartedListener,
+        SensorEventListener,
         LocationListener {
 
     private GoogleMap mMap;
@@ -55,12 +60,24 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     private ListView mDrawerList;
     private ActionBarDrawerToggle mDrawerToggle;
 
-    /*Values*/
+    /*Location Values*/
 
     double longitude = 0;
     double latitude = 0;
     double altitude = 0;
     double accuracy = 0;
+
+    /* Sensor Values */
+    float[] inR = new float[16];
+    float[] I = new float[16];
+    float[] gravity = new float[3];
+    float[] geomag = new float[3];
+    float[] orientVals = new float[3];
+    double azimuth = 0;
+    double pitch = 0;
+    double roll = 0;
+    boolean unreliable = false;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -166,6 +183,9 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             mMap.setMyLocationEnabled(true);
             mMap.setOnMyLocationButtonClickListener(this);
             mMap.setOnCameraMoveStartedListener(this);
+            SensorManager sm = (SensorManager) getSystemService(SENSOR_SERVICE);
+            sm.registerListener(this, sm.getDefaultSensor(Sensor.TYPE_ACCELEROMETER), SensorManager.SENSOR_DELAY_NORMAL);
+            sm.registerListener(this, sm.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD), SensorManager.SENSOR_DELAY_NORMAL);
 
         }
     }
@@ -200,14 +220,14 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         altitude = location.getAltitude();
         accuracy = location.getAltitude();
 
-        /*TextView TV_Location = (TextView) findViewById((R.id.TV_Location));
+        TextView TV_Location = (TextView) findViewById((R.id.TV_Location));
 
         TV_Location.setText("Lat: " + (float) ((int) (location.getLatitude() * 100)) / 100 + "\n" +
                 "Lon: " + (float) ((int) (location.getLongitude() * 100)) / 100 + "\n" +
                 "Altitude: " + (float) ((int) (location.getAltitude() * 100)) / 100 + "meters");
 
         TextView TV_Accuracy = (TextView) findViewById((R.id.TV_Accuracy));
-        TV_Accuracy.setText("Radius: " + location.getAccuracy() + " meters"); */
+        TV_Accuracy.setText("Radius: " + location.getAccuracy() + " meters");
 
 
         if (setup) {
@@ -242,7 +262,9 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     public void onClick(View v) {
         if(v.getId() == R.id.picture_button){
-
+            if(unreliable) {
+                Toast.makeText(this, R.string.sensor_warning, Toast.LENGTH_LONG).show();
+            }
             startPictureIntent();
         }
     }
@@ -257,4 +279,51 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         startActivity(i);
     }
 
+    @Override
+    public void onSensorChanged(SensorEvent sensorEvent) {
+        // If the sensor data is unreliable return
+        if (sensorEvent.accuracy == SensorManager.SENSOR_STATUS_UNRELIABLE) {
+            unreliable = true;
+        }
+
+        // Gets the value of the sensor that has been changed
+        switch (sensorEvent.sensor.getType()) {
+            case Sensor.TYPE_ACCELEROMETER:
+                gravity = sensorEvent.values.clone();
+                break;
+            case Sensor.TYPE_MAGNETIC_FIELD:
+                geomag = sensorEvent.values.clone();
+                break;
+        }
+
+        // If gravity and geomag have values then find rotation matrix
+        if (gravity != null && geomag != null) {
+
+            // checks that the rotation matrix is found
+            boolean success = SensorManager.getRotationMatrix(inR, I,
+                    gravity, geomag);
+            if (success) {
+                SensorManager.getOrientation(inR, orientVals);
+                azimuth =  Math.toDegrees(orientVals[0]);
+                pitch = Math.toDegrees(orientVals[1]);
+                roll = Math.toDegrees(orientVals[2]);
+                TextView TV_Warning = (TextView) findViewById((R.id.TV_Warning));
+                if(unreliable){
+                    TV_Warning.setText(R.string.sensor_reliable);
+                }
+                else{
+                    TV_Warning.setText(R.string.sensor_unreliable);
+                }
+                TextView TV_Orientation = (TextView) findViewById((R.id.TV_Orientation));
+                TV_Orientation.setText("azimuth: " + (int) azimuth + "\n" +
+                                       "pitch: " + (int) pitch + "\n" +
+                                       "roll: " + (int) roll + "\n");
+            }
+        }
+    }
+
+    @Override
+    public void onAccuracyChanged(Sensor sensor, int accuracy) {
+
+    }
 }
