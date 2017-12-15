@@ -262,9 +262,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     public void onClick(View v) {
         if(v.getId() == R.id.picture_button){
-            if(unreliable) {
-                Toast.makeText(this, R.string.sensor_warning, Toast.LENGTH_LONG).show();
-            }
             startPictureIntent();
         }
     }
@@ -275,7 +272,9 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         i.putExtra("latitude", latitude);
         i.putExtra("altitude", altitude);
         i.putExtra("accuracy", accuracy);
-
+        if(unreliable) {
+            Toast.makeText(this, R.string.sensor_warning, Toast.LENGTH_LONG).show();
+        }
         startActivity(i);
     }
 
@@ -309,10 +308,10 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 roll = Math.toDegrees(orientVals[2]);
                 TextView TV_Warning = (TextView) findViewById((R.id.TV_Warning));
                 if(unreliable){
-                    TV_Warning.setText(R.string.sensor_reliable);
+                    TV_Warning.setText(R.string.sensor_unreliable);
                 }
                 else{
-                    TV_Warning.setText(R.string.sensor_unreliable);
+                    TV_Warning.setText(R.string.sensor_reliable);
                 }
                 TextView TV_Orientation = (TextView) findViewById((R.id.TV_Orientation));
                 TV_Orientation.setText("azimuth: " + (int) azimuth + "\n" +
