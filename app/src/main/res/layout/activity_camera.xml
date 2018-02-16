@@ -23,14 +23,17 @@
             android:layout_above="@+id/button_image"
             android:layout_centerHorizontal="true" />
 
-        <Button
+        <android.support.design.widget.FloatingActionButton
             android:id="@+id/button_image"
-            android:layout_width="wrap_content"
-            android:layout_height="48dp"
+            android:layout_width="70dp"
+            android:layout_height="70dp"
             android:layout_alignParentBottom="true"
             android:layout_centerHorizontal="true"
+            android:layout_margin="20dp"
+            android:clickable="true"
             android:onClick="takePicture"
-            android:text="Take a picture!" />
+            android:src="@android:drawable/ic_menu_camera"
+            />
 
     </RelativeLayout>
 

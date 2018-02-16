@@ -33,8 +33,13 @@ public class DrawerManager {
         mDrawerLayout = drawerLayout;
         mDrawerList = drawerList;
 
+
+        mActivity.getSupportActionBar().setLogo(R.drawable.qualitylogo);
+        mActivity.getSupportActionBar().setIcon(R.drawable.qualitylogo);
         mActivity.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         mActivity.getSupportActionBar().setHomeButtonEnabled(true);
+        mActivity.getSupportActionBar().setDisplayUseLogoEnabled(true);
+
 
         // Set the adapter for the list view
         mDrawerList.setAdapter(new ArrayAdapter<String>(mActivity, android.R.layout.simple_list_item_1, mNavMenuOptions));
@@ -76,6 +81,8 @@ public class DrawerManager {
                 super.onDrawerOpened(drawerView);
                 try {
                     mActivity.getSupportActionBar().setTitle("Navigation");
+                    mActivity.getSupportActionBar().setLogo(R.drawable.qualitylogo);
+
                 } catch (NullPointerException e) {
                     //do nothing
                 }
@@ -87,6 +94,7 @@ public class DrawerManager {
                 super.onDrawerClosed(view);
                 try {
                     mActivity.getSupportActionBar().setTitle(mActivity.getTitle().toString());
+                    mActivity.getSupportActionBar().setLogo(R.drawable.qualitylogo);
                 } catch (NullPointerException e) {
                     //do nothing
                 }

@@ -24,6 +24,7 @@ import android.os.Environment;
 import android.os.PersistableBundle;
 import android.preference.PreferenceManager;
 import android.provider.MediaStore;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.FileProvider;
@@ -35,6 +36,7 @@ import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -51,7 +53,7 @@ import java.util.List;
 import java.util.Properties;
 
 public class CameraActivity extends AppCompatActivity implements SensorEventListener {
-    private Button takePictureButton;
+    private FloatingActionButton takePictureButton;
     private ImageView imageView;
     private Uri file;
     private static final String TAG = CameraActivity.class.getSimpleName();
@@ -89,7 +91,7 @@ public class CameraActivity extends AppCompatActivity implements SensorEventList
         altitude = i.getDoubleExtra("altitude", 0);
         accuracy = i.getDoubleExtra("accuracy", 0);
 
-        takePictureButton = (Button) findViewById(R.id.button_image);
+        takePictureButton = (FloatingActionButton) findViewById(R.id.button_image);
         imageView = (ImageView) findViewById(R.id.imageview);
 
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {

@@ -21,14 +21,16 @@
             android:gravity="top"
             tools:context="com.example.yuzur.maps.MapsActivity" />
 
-        <Button
+        <ImageButton
             android:id="@+id/picture_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="70dp"
+            android:layout_height="70dp"
             android:layout_alignParentBottom="true"
             android:layout_centerHorizontal="true"
+            android:layout_margin="20dp"
             android:onClick="onClick"
-            android:text="Take Picture" />
+            android:src="@android:drawable/ic_menu_camera"
+            android:background="#0055ff"/>
     </RelativeLayout>
 
     <ListView
