@@ -1,5 +1,6 @@
 package com.example.yuzur.maps;
 
+import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.job.JobParameters;
 import android.app.job.JobService;
@@ -17,6 +18,8 @@ import android.widget.Toast;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.io.IOUtils;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -41,10 +44,6 @@ import javax.crypto.spec.SecretKeySpec;
 
 public class UploadFileService extends JobService {
     private static final String TAG = MapsActivity.class.getSimpleName();
-
-
-
-
     public String encode(String key, String data) {
         try {
 
@@ -52,8 +51,6 @@ public class UploadFileService extends JobService {
             SecretKeySpec secret_key = new SecretKeySpec(key.getBytes("UTF-8"), "HmacSHA256");
             sha256_HMAC.init(secret_key);
             String encoded = new String(Hex.encodeHex(sha256_HMAC.doFinal(data.getBytes("UTF-8"))));
-            Log.wtf(TAG, encoded);
-            Log.wtf(TAG, data);
             return encoded;
 
         } catch (NoSuchAlgorithmException e) {
@@ -72,6 +69,20 @@ public class UploadFileService extends JobService {
         AsyncTask.execute(new Runnable() {
             @Override
             public void run() {
+                File image = new File((String) params.getExtras().get("input"));
+
+                Notification.Builder uploadNotif = new Notification.Builder(UploadFileService.this)
+                        .setContentTitle("Uploading: " + image.getName())
+                        .setSmallIcon(R.drawable.qualitylogo)
+                        .setPriority(Notification.PRIORITY_MAX)
+                        .setDefaults(Notification.DEFAULT_ALL)
+                        .setShowWhen(true);
+
+                //notificationStart.flags = Notification.FLAG_AUTO_CANCEL;
+                NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+
+                //notificationManager.notify(0,notificationStart);
+
                 HttpURLConnection connection = null;
                 Date date = new Date();
 
@@ -101,12 +112,33 @@ public class UploadFileService extends JobService {
 
                     //Write data
                     FileInputStream instream = new FileInputStream((String)params.getExtras().get("input"));
-                    IOUtils.copy(instream, connection.getOutputStream());
+                    float totalBytes = instream.available();
+                    //IOUtils.copy(instream, connection.getOutputStream());
+
+                    BufferedInputStream bufInput = new BufferedInputStream( instream);
+                    DataOutputStream out = new DataOutputStream(connection.getOutputStream());
+
+                    int progress = 0;
+                    int bytesRead = 0;
+                    int percentUploaded = 0;
+                    byte buf[] = new byte[1024];
+                    while ((bytesRead = bufInput.read(buf)) != -1) {
+                        // write output
+                        out.write(buf, 0, bytesRead);
+                        out.flush();
+                        progress += bytesRead;
+                        // update progress bar
+                        int newPercent = (int)((progress * 100) / totalBytes);
+                        if( newPercent != percentUploaded){
+                            uploadNotif.setProgress(100, newPercent, false);
+                            notificationManager.notify(0, uploadNotif.build());
+                        }
+                        percentUploaded = newPercent;
+                    }
 
                     //Server Response
                     String res = IOUtils.toString(connection.getInputStream());
-                    Log.wtf(TAG,"Response: " + res);
-
+                    Log.wtf(TAG,"Server Response: " + res);
 
                 }
                 catch ( MalformedURLException e){
@@ -118,12 +150,19 @@ public class UploadFileService extends JobService {
                 finally {
                     if ( connection != null){
                         connection.disconnect();
-                        Log.wtf(TAG, (String) params.getExtras().get("input"));
+
                         if(params.getExtras().get("delete").equals("true"))
                         {
-                            File image = new File((String) params.getExtras().get("input"));
                             image.delete();
                         }
+
+
+
+                        uploadNotif.setContentTitle("Uploaded: " + image.getName())
+                                // Removes the progress bar
+                                .setProgress(0,0,false);
+
+                        notificationManager.notify(0,uploadNotif.build());
 
                         jobFinished(params, false);
                     }

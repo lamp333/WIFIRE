@@ -21,16 +21,17 @@
             android:gravity="top"
             tools:context="com.example.yuzur.maps.MapsActivity" />
 
-        <ImageButton
+        <android.support.design.widget.FloatingActionButton
             android:id="@+id/picture_button"
             android:layout_width="70dp"
             android:layout_height="70dp"
             android:layout_alignParentBottom="true"
             android:layout_centerHorizontal="true"
             android:layout_margin="20dp"
+            android:clickable="true"
             android:onClick="onClick"
             android:src="@android:drawable/ic_menu_camera"
-            android:background="#0055ff"/>
+            />
     </RelativeLayout>
 
     <ListView

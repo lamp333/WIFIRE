@@ -2,6 +2,8 @@
 package com.example.yuzur.maps;
 
 import android.Manifest;
+import android.app.Notification;
+import android.app.NotificationManager;
 import android.app.job.JobInfo;
 import android.app.job.JobScheduler;
 import android.content.ComponentName;
@@ -9,9 +11,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.database.Cursor;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
@@ -155,7 +155,9 @@ public class CameraActivity extends AppCompatActivity implements SensorEventList
         else{
             file = Uri.fromFile(f);
         }
-        Toast.makeText(this, ""+(int) azimuth, Toast.LENGTH_LONG).show();
+        //Toast.makeText(this, "LOLOLOL", Toast.LENGTH_LONG).show();
+
+
         intent.putExtra(MediaStore.EXTRA_OUTPUT, file);
         startActivityForResult(intent, 100);
     }
@@ -232,7 +234,7 @@ public class CameraActivity extends AppCompatActivity implements SensorEventList
                     header.setAttribute("UserComment", "direction: " + (int)azimuth);
                     header.saveAttributes();
 
-                    Toast.makeText(this, ""+(int) azimuth, Toast.LENGTH_LONG).show();
+                    //Toast.makeText(this, ""+(int) azimuth, Toast.LENGTH_LONG).show();
                     //Set unique ID for job ID
                     List<JobInfo> activeJobs = mJobScheduler.getAllPendingJobs();
                     int id = 1;
@@ -264,7 +266,7 @@ public class CameraActivity extends AppCompatActivity implements SensorEventList
                                     .setExtras(bundle)
                                     .setPersisted(true);
                     //Schedule the job
-                    Log.wtf(TAG, "wi_fi_only: " + wifi + " delete:" + delete);
+                    //Log.wtf(TAG, "wi_fi_only: " + wifi + " delete:" + delete);
                     int result = mJobScheduler.schedule(builder.build());
                     if(result <= 0)
                         Log.wtf(TAG, "failed to schedule");
