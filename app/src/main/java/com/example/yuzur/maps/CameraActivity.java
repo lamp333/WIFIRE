@@ -178,10 +178,9 @@ public class CameraActivity extends AppCompatActivity implements SensorEventList
                 "IMG_"+ timeStamp + ".jpeg");
     }
 
-    private void addPhotoToGallery() {
-        Intent mediaScanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
-        mediaScanIntent.setData(file); //your file uri
-        this.sendBroadcast(mediaScanIntent);
+    private void goToGallery() {
+        Intent i = new Intent(CameraActivity.this, ImageGalleryActivity.class);
+        startActivity(i);
     }
     synchronized public static final String convert(double latitude) {
         StringBuilder sb = new StringBuilder(20);
@@ -276,7 +275,7 @@ public class CameraActivity extends AppCompatActivity implements SensorEventList
                     Log.wtf(TAG, "IOException");
                     Log.wtf(TAG, e.getMessage());
                 }
-                addPhotoToGallery();
+                goToGallery();
             }
         }
     }

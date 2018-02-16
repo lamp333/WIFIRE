@@ -70,6 +70,12 @@
             android:screenOrientation="portrait">
         </activity>
 
+        <activity
+            android:name=".ImageGalleryActivity"
+            android:label="ImageGallery"
+            android:screenOrientation="portrait">
+        </activity>
+
         <service android:name=".UploadFileService"
             android:permission="android.permission.BIND_JOB_SERVICE" />
 

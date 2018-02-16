@@ -15,7 +15,8 @@ public class DrawerManager {
     public static final int HOME = 0;
     public static final int SETTINGS = 1;
     public static final int ABOUT = 2;
-    public static final int CAMERA = 3;
+    public static final int GALLERY = 3;
+    public static final int CAMERA = 4;
 
     private AppCompatActivity mActivity;
 
@@ -69,6 +70,14 @@ public class DrawerManager {
                             mDrawerLayout.closeDrawers();
                         }
                         break;
+
+                    case GALLERY:
+                        if(callingActivity != GALLERY) {
+                            openGallery();
+                        }  else {
+                            mDrawerLayout.closeDrawers();
+                        }
+
                 }
             }
         });
@@ -121,6 +130,11 @@ public class DrawerManager {
 
     private void openSettings() {
         Intent i = new Intent(mActivity, SettingsActivity.class);
+        mActivity.startActivity(i);
+    }
+
+    private void openGallery() {
+        Intent i = new Intent(mActivity, ImageGalleryActivity.class);
         mActivity.startActivity(i);
     }
 }

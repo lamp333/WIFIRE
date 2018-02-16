@@ -9,6 +9,7 @@
         <item>Home</item>
         <item>Settings</item>
         <item>About</item>
+        <item>Image Gallery</item>
     </string-array>
 
     <string name="drawer_open">Open navigation drawer</string>
