@@ -142,6 +142,12 @@ public class CameraActivity extends AppCompatActivity implements SensorEventList
         }
     }
 
+    @Override
+    public void onBackPressed() {
+        Intent i = new Intent(CameraActivity.this, MapsActivity.class);
+        startActivity(i);
+    }
+
     public void takePicture(View view) {
         if(unreliable) {
             Toast.makeText(this, R.string.sensor_warning, Toast.LENGTH_LONG).show();
