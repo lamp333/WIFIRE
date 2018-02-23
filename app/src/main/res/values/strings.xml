@@ -7,9 +7,9 @@
 
     <string-array name="nav_menu">
         <item>Home</item>
+        <item>Image Gallery</item>
         <item>Settings</item>
         <item>About</item>
-        <item>Image Gallery</item>
     </string-array>
 
     <string name="drawer_open">Open navigation drawer</string>

@@ -1,8 +1,14 @@
 package com.example.yuzur.maps;
 
+import android.*;
+import android.Manifest;
+import android.content.pm.PackageManager;
 import android.graphics.Matrix;
 import android.graphics.Point;
 import android.net.Uri;
+import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
@@ -39,6 +45,9 @@ public class ImageGalleryActivity extends AppCompatActivity {
     private ListView mDrawerList;
     private String[] mNavMenuOptions;
     private ActionBarDrawerToggle mDrawerToggle;
+
+    private static final int REQUEST_STORAGE_CODE = 0;
+
     public class ImageAdapter extends BaseAdapter {
 
         private Context mContext;
@@ -89,6 +98,14 @@ public class ImageGalleryActivity extends AppCompatActivity {
                     .centerCrop()
                     .resize(imageLength,imageLength)
                     .into(imageView);
+
+            imageView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+
+                }
+            });
+
             return imageView;
         }
 
@@ -101,21 +118,7 @@ public class ImageGalleryActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_image_gallery);
 
-        GridView gridview = (GridView) findViewById(R.id.gridview);
-        myImageAdapter = new ImageAdapter(this);
-        gridview.setAdapter(myImageAdapter);
-
-        File mediaStorageDir = new File(Environment.getExternalStoragePublicDirectory(
-                Environment.DIRECTORY_PICTURES), "WIFIRE");
-
-        String targetPath = mediaStorageDir.getAbsolutePath();
-
-        File targetDirector = new File(targetPath);
-
-        File[] files = targetDirector.listFiles();
-        for (File file : files){
-            myImageAdapter.add(file.getAbsolutePath());
-        }
+        checkPermissions();
 
         mDrawerManager = new DrawerManager(this);
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -137,6 +140,67 @@ public class ImageGalleryActivity extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    public void checkPermissions() {
+        // If storage permission is not granted yet
+        if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED ||
+                ContextCompat.checkSelfPermission(this, android.Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            //If user denied access, request permissions again
+            if (ActivityCompat.shouldShowRequestPermissionRationale(this, android.Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+                ActivityCompat.requestPermissions(this, new String[] { android.Manifest.permission.WRITE_EXTERNAL_STORAGE , android.Manifest.permission.READ_EXTERNAL_STORAGE}, REQUEST_STORAGE_CODE);
+            }
+            //Else If user has not denied access, request permissions
+            else {
+                ActivityCompat.requestPermissions(this, new String[] { android.Manifest.permission.WRITE_EXTERNAL_STORAGE , android.Manifest.permission.READ_EXTERNAL_STORAGE}, REQUEST_STORAGE_CODE);
+            }
+        } else {
+            GridView gridview = (GridView) findViewById(R.id.gridview);
+            myImageAdapter = new ImageAdapter(this);
+            gridview.setAdapter(myImageAdapter);
+
+            File mediaStorageDir = new File(Environment.getExternalStoragePublicDirectory(
+                    Environment.DIRECTORY_PICTURES), "WIFIRE");
+
+            String targetPath = mediaStorageDir.getAbsolutePath();
+
+            File targetDirector = new File(targetPath);
+
+            File[] files = targetDirector.listFiles();
+            for (File file : files){
+                myImageAdapter.add(file.getAbsolutePath());
+            }
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        switch (requestCode) {
+            case REQUEST_STORAGE_CODE:
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED
+                        && grantResults[1] == PackageManager.PERMISSION_GRANTED) {
+
+                    GridView gridview = (GridView) findViewById(R.id.gridview);
+                    myImageAdapter = new ImageAdapter(this);
+                    gridview.setAdapter(myImageAdapter);
+
+                    File mediaStorageDir = new File(Environment.getExternalStoragePublicDirectory(
+                            Environment.DIRECTORY_PICTURES), "WIFIRE");
+
+                    String targetPath = mediaStorageDir.getAbsolutePath();
+
+                    File targetDirector = new File(targetPath);
+
+                    File[] files = targetDirector.listFiles();
+                    for (File file : files){
+                        myImageAdapter.add(file.getAbsolutePath());
+                    }
+                } else {
+                    Toast.makeText(this, "Please enable storage permissions to access the gallery.", Toast.LENGTH_LONG).show();
+                    finish();
+                }
+                break;
+        }
     }
 
 }

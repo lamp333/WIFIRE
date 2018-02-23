@@ -13,9 +13,9 @@ import android.widget.ListView;
 
 public class DrawerManager {
     public static final int HOME = 0;
-    public static final int SETTINGS = 1;
-    public static final int ABOUT = 2;
-    public static final int GALLERY = 3;
+    public static final int GALLERY = 1;
+    public static final int SETTINGS = 2;
+    public static final int ABOUT = 3;
     public static final int CAMERA = 4;
 
     private AppCompatActivity mActivity;
