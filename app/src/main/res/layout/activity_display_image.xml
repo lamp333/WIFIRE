@@ -7,9 +7,53 @@
     android:background="@android:color/black"
     tools:context="com.example.yuzur.maps.DisplayImageActivity">
 
-    <ImageView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/image_full"/>
+    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/image_full"/>
+
+        <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:layout_alignParentTop="true"
+            android:background="#80000000">
+            <ImageButton
+                android:id="@+id/back"
+                android:layout_height="32dp"
+                android:layout_width="32dp"
+                android:layout_margin="20dp"
+                android:clickable="true"
+                android:onClick="onClick"
+                android:background="#00000000"
+                android:src="@drawable/ic_white_back"
+                />
+        </RelativeLayout>
+
+        <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:layout_alignParentBottom="true"
+            android:background="#80000000">
+            <ImageButton
+                android:id="@+id/delete"
+                android:layout_height="32dp"
+                android:layout_width="32dp"
+                android:layout_centerHorizontal="true"
+                android:layout_margin="20dp"
+                android:clickable="true"
+                android:onClick="onClick"
+                android:background="#00000000"
+                android:src="@drawable/ic_white_delete"
+                />
+        </RelativeLayout>
+
+    </RelativeLayout>
+
+
+
 
 </android.support.constraint.ConstraintLayout>
