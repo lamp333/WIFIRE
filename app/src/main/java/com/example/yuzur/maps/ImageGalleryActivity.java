@@ -27,6 +27,8 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import com.squareup.picasso.Picasso;
+
 /**
  * Created by Chris Ozawa on 2/15/2018.
  */
@@ -41,6 +43,7 @@ public class ImageGalleryActivity extends AppCompatActivity {
 
         private Context mContext;
         ArrayList<String> itemList = new ArrayList<String>();
+        Display display = getWindowManager().getDefaultDisplay();
 
         public ImageAdapter(Context c) {
             mContext = c;
@@ -70,60 +73,23 @@ public class ImageGalleryActivity extends AppCompatActivity {
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
             ImageView imageView;
-            Display display = getWindowManager().getDefaultDisplay();
+
             Point size = new Point();
             display.getSize(size);
             int imageLength = (size.x / 4) - (size.x / 100);
             if (convertView == null) {  // if it's not recycled, initialize some attributes
                 imageView = new ImageView(mContext);
-                imageView.setLayoutParams(new GridView.LayoutParams(imageLength, imageLength));
-                imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
-                imageView.setPadding(0, 0, 0, 0);
             } else {
                 imageView = (ImageView) convertView;
             }
-
-            Bitmap bm = decodeSampledBitmapFromUri(itemList.get(position), imageLength, imageLength);
-
-            imageView.setImageBitmap(bm);
+            File image = new File(itemList.get(position));
+            Picasso.with(ImageGalleryActivity.this)
+                    .load(image)
+                    .error(R.drawable.qualitylogo)
+                    .centerCrop()
+                    .resize(imageLength,imageLength)
+                    .into(imageView);
             return imageView;
-        }
-
-        public Bitmap decodeSampledBitmapFromUri(String path, int reqWidth, int reqHeight) {
-
-            Bitmap bm = null;
-            // First decode with inJustDecodeBounds=true to check dimensions
-            final BitmapFactory.Options options = new BitmapFactory.Options();
-            options.inJustDecodeBounds = true;
-            BitmapFactory.decodeFile(path, options);
-
-            // Calculate inSampleSize
-            options.inSampleSize = calculateInSampleSize(options, reqWidth, reqHeight);
-
-            // Decode bitmap with inSampleSize set
-            options.inJustDecodeBounds = false;
-            bm = BitmapFactory.decodeFile(path, options);
-
-            return bm;
-        }
-
-        public int calculateInSampleSize(
-
-                BitmapFactory.Options options, int reqWidth, int reqHeight) {
-            // Raw height and width of image
-            final int height = options.outHeight;
-            final int width = options.outWidth;
-            int inSampleSize = 1;
-
-            if (height > reqHeight || width > reqWidth) {
-                if (width > height) {
-                    inSampleSize = Math.round((float)height / (float)reqHeight);
-                } else {
-                    inSampleSize = Math.round((float)width / (float)reqWidth);
-                }
-            }
-
-            return inSampleSize;
         }
 
     }

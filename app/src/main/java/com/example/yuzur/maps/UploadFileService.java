@@ -4,29 +4,18 @@ import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.job.JobParameters;
 import android.app.job.JobService;
-import android.content.Context;
-import android.content.SharedPreferences;
-import android.content.res.AssetManager;
+import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
-import android.os.Handler;
-import android.os.Message;
-import android.preference.PreferenceManager;
-import android.support.v4.app.NotificationCompat;
 import android.util.Log;
-import android.widget.Toast;
 
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.io.IOUtils;
 
 import java.io.BufferedInputStream;
-import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
@@ -34,9 +23,7 @@ import java.net.URL;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.Date;
-import java.util.Properties;
 import java.util.SimpleTimeZone;
 
 import javax.crypto.Mac;
@@ -160,7 +147,8 @@ public class UploadFileService extends JobService {
 
                         uploadNotif.setContentTitle("Uploaded: " + image.getName())
                                 // Removes the progress bar
-                                .setProgress(0,0,false);
+                                .setProgress(0,0,false)
+                                .setStyle(new Notification.BigPictureStyle().bigPicture(BitmapFactory.decodeFile(image.getAbsolutePath())));
 
                         notificationManager.notify(0,uploadNotif.build());
 
