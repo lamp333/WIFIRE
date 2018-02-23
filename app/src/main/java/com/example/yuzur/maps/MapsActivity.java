@@ -1,10 +1,13 @@
 package com.example.yuzur.maps;
 
 import android.Manifest;
+import android.app.AlertDialog;
+import android.app.Dialog;
 import android.app.job.JobInfo;
 import android.app.job.JobScheduler;
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -111,7 +114,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         super.onCreate(savedInstanceState);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            Log.wtf("ahhhhhh", "ffffff");
             requestPermissions();
         }
         setContentView(R.layout.activity_maps);
@@ -133,6 +135,34 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         mJobScheduler = (JobScheduler) getSystemService( Context.JOB_SCHEDULER_SERVICE );
 
+        if(checkFirstRun()){
+            // Build a Welcome dialog
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setMessage(R.string.welcome)
+                    .setPositiveButton("Got it!", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+                        }
+                    });
+            // Create the AlertDialog object and show it
+            Dialog welcome_dialog = builder.create();
+            welcome_dialog.setCancelable(false);
+            welcome_dialog.setCanceledOnTouchOutside(false);
+            welcome_dialog.show();
+        }
+
+    }
+
+    public boolean checkFirstRun() {
+        boolean isFirstRun = getSharedPreferences("PREFERENCE", MODE_PRIVATE).getBoolean("isFirstRun", true);
+        if (isFirstRun){
+            // Place your dialog code here to display the dialog
+
+            getSharedPreferences("PREFERENCE", MODE_PRIVATE)
+                    .edit()
+                    .putBoolean("isFirstRun", false)
+                    .apply();
+        }
+        return isFirstRun;
     }
 
     protected synchronized void buildGoogleApiClient() {
