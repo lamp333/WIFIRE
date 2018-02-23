@@ -2,18 +2,25 @@ package com.example.yuzur.maps;
 
 import android.*;
 import android.Manifest;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Matrix;
 import android.graphics.Point;
 import android.net.Uri;
+import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v4.widget.PopupMenuCompat;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.Display;
+import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.MenuItem;
+import android.widget.Button;
 import android.widget.LinearLayout;
 
 import java.io.File;
@@ -31,6 +38,7 @@ import android.widget.BaseAdapter;
 import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.PopupWindow;
 import android.widget.Toast;
 
 import com.squareup.picasso.Picasso;
@@ -46,7 +54,12 @@ public class ImageGalleryActivity extends AppCompatActivity {
     private String[] mNavMenuOptions;
     private ActionBarDrawerToggle mDrawerToggle;
 
+    private PopupWindow popupWindow;
+    private boolean popupShowing = false;
+
     private static final int REQUEST_STORAGE_CODE = 0;
+
+    public static final String IMAGE_FILENAME = "image_filename";
 
     public class ImageAdapter extends BaseAdapter {
 
@@ -80,18 +93,18 @@ public class ImageGalleryActivity extends AppCompatActivity {
         }
 
         @Override
-        public View getView(int position, View convertView, ViewGroup parent) {
+        public View getView(final int position, View convertView, ViewGroup parent) {
             ImageView imageView;
 
             Point size = new Point();
             display.getSize(size);
-            int imageLength = (size.x / 4) - (size.x / 100);
+            final int imageLength = (size.x / 4) - (size.x / 100);
             if (convertView == null) {  // if it's not recycled, initialize some attributes
                 imageView = new ImageView(mContext);
             } else {
                 imageView = (ImageView) convertView;
             }
-            File image = new File(itemList.get(position));
+            final File image = new File(itemList.get(position));
             Picasso.with(ImageGalleryActivity.this)
                     .load(image)
                     .error(R.drawable.qualitylogo)
@@ -102,7 +115,9 @@ public class ImageGalleryActivity extends AppCompatActivity {
             imageView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-
+                    Intent i = new Intent(ImageGalleryActivity.this, DisplayImageActivity.class);
+                    i.putExtra(IMAGE_FILENAME, itemList.get(position));
+                    startActivity(i);
                 }
             });
 
