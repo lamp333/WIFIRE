@@ -190,8 +190,10 @@ public class ImageGalleryActivity extends AppCompatActivity {
             File targetDirector = new File(targetPath);
 
             File[] files = targetDirector.listFiles();
-            for (File file : files){
-                myImageAdapter.add(file.getAbsolutePath());
+            if(files != null){
+                for (File file : files){
+                    myImageAdapter.add(file.getAbsolutePath());
+                }
             }
         }
     }
