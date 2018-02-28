@@ -72,7 +72,10 @@ public class DisplayImageActivity extends AppCompatActivity {
     }
 
     private void goBackToGallery() {
-        Intent i = new Intent(DisplayImageActivity.this, ImageGalleryActivity.class);
-        startActivity(i);
+        /*Intent i = new Intent(DisplayImageActivity.this, ImageGalleryActivity.class);
+        i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        i.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
+        startActivity(i);*/
+        finish();
     }
 }

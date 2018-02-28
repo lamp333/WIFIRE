@@ -137,17 +137,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         if(checkFirstRun()){
             // Build a Welcome dialog
-            AlertDialog.Builder builder = new AlertDialog.Builder(this);
-            builder.setMessage(R.string.welcome)
-                    .setPositiveButton("Got it!", new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int id) {
-                        }
-                    });
-            // Create the AlertDialog object and show it
-            Dialog welcome_dialog = builder.create();
-            welcome_dialog.setCancelable(false);
-            welcome_dialog.setCanceledOnTouchOutside(false);
-            welcome_dialog.show();
+            showInstructionsDialog();
         }
 
     }
@@ -163,6 +153,20 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                     .apply();
         }
         return isFirstRun;
+    }
+
+    private void showInstructionsDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage(R.string.welcome)
+                .setPositiveButton("Got it!", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                    }
+                });
+        // Create the AlertDialog object and show it
+        Dialog welcome_dialog = builder.create();
+        welcome_dialog.setCancelable(false);
+        welcome_dialog.setCanceledOnTouchOutside(false);
+        welcome_dialog.show();
     }
 
     protected synchronized void buildGoogleApiClient() {
@@ -353,6 +357,9 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             } else {
                 requestPermissions();
             }
+        } else if(v.getId() == R.id.help_button) {
+            Log.wtf("sdf", "sdfsadf");
+            showInstructionsDialog();
         }
     }
 

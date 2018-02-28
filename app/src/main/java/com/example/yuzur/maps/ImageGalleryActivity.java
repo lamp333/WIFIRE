@@ -117,6 +117,7 @@ public class ImageGalleryActivity extends AppCompatActivity {
                 public void onClick(View view) {
                     Intent i = new Intent(ImageGalleryActivity.this, DisplayImageActivity.class);
                     i.putExtra(IMAGE_FILENAME, itemList.get(position));
+                    i.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
                     startActivity(i);
                 }
             });

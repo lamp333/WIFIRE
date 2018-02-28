@@ -21,6 +21,17 @@
             android:gravity="top"
             tools:context="com.example.yuzur.maps.MapsActivity" />
 
+        <ImageButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/help_button"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentLeft="true"
+            android:src="@drawable/ic_help_black_24dp"
+            android:background="?android:selectableItemBackground"
+            android:onClick="onClick"
+            android:layout_margin="@dimen/margin_padding"/>
+
         <android.support.design.widget.FloatingActionButton
             android:id="@+id/picture_button"
             android:layout_width="70dp"
