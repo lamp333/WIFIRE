@@ -17,6 +17,7 @@ import com.squareup.picasso.Picasso;
 import java.io.File;
 
 public class DisplayImageActivity extends AppCompatActivity {
+    File image;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,7 +36,7 @@ public class DisplayImageActivity extends AppCompatActivity {
         Intent i = getIntent();
         String filename = i.getStringExtra(ImageGalleryActivity.IMAGE_FILENAME);
         Log.wtf("Image Path", filename);
-        File image = new File(filename);
+        image = new File(filename);
         if(image != null) {
             Picasso.with(DisplayImageActivity.this)
                     .load(image)
@@ -63,7 +64,8 @@ public class DisplayImageActivity extends AppCompatActivity {
             goBackToGallery();
         }
         else if (v.getId() == R.id.delete){
-            Log.wtf("DELETE", "pls");
+            image.delete();
+            goBackToGallery();
         }
     }
     @Override
