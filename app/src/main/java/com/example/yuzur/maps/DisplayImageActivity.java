@@ -9,6 +9,8 @@ import android.view.Display;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 
 import com.squareup.picasso.Callback;
@@ -18,6 +20,13 @@ import java.io.File;
 
 public class DisplayImageActivity extends AppCompatActivity {
     File image;
+    View topBar;
+    View bottomBar;
+
+    Animation fadeOutTopAnim;
+    Animation fadeOutBotAnim;
+    Animation fadeInAnim;
+    boolean showMenu;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,11 +41,10 @@ public class DisplayImageActivity extends AppCompatActivity {
         setContentView(R.layout.activity_display_image);
 
         ImageView imageView = (ImageView) findViewById(R.id.image_full);
-
-        Intent i = getIntent();
-        String filename = i.getStringExtra(ImageGalleryActivity.IMAGE_FILENAME);
-        Log.wtf("Image Path", filename);
+        String filename = getIntent().getStringExtra(ImageGalleryActivity.IMAGE_FILENAME);
         image = new File(filename);
+        showMenu = true;
+        setAnimations();
         if(image != null) {
             Picasso.with(DisplayImageActivity.this)
                     .load(image)
@@ -59,6 +67,63 @@ public class DisplayImageActivity extends AppCompatActivity {
         }
     }
 
+    public void setAnimations(){
+        topBar = findViewById(R.id.l1);
+        bottomBar = findViewById(R.id.l2);
+
+        fadeOutTopAnim = AnimationUtils.loadAnimation(DisplayImageActivity.this, android.R.anim.fade_out);
+        fadeOutBotAnim = AnimationUtils.loadAnimation(DisplayImageActivity.this, android.R.anim.fade_out);
+        fadeInAnim = AnimationUtils.loadAnimation(DisplayImageActivity.this, android.R.anim.fade_in);
+
+
+        fadeOutTopAnim.setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {
+
+            }
+
+            @Override
+            public void onAnimationEnd(Animation animation) {
+                topBar.setVisibility(View.GONE);
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {
+
+            }
+        });
+
+        fadeOutBotAnim.setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {
+
+            }
+
+            @Override
+            public void onAnimationEnd(Animation animation) {
+                bottomBar.setVisibility(View.GONE);
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {
+
+            }
+        });
+    }
+
+    public void fadeOut(){
+        topBar.startAnimation(fadeOutTopAnim);
+        bottomBar.startAnimation(fadeOutBotAnim);
+        showMenu = false;
+    }
+    public void fadeIn(){
+        topBar.setVisibility(View.VISIBLE);
+        bottomBar.setVisibility(View.VISIBLE);
+        topBar.startAnimation(fadeInAnim);
+        bottomBar.startAnimation(fadeInAnim);
+        showMenu = true;
+    }
+
     public void onClick(View v) {
         if(v.getId() == R.id.back){
             goBackToGallery();
@@ -67,6 +132,16 @@ public class DisplayImageActivity extends AppCompatActivity {
             image.delete();
             goBackToGallery();
         }
+        else{
+            if(showMenu){
+                fadeOut();
+            }
+            else{
+                fadeIn();
+            }
+        }
+
+
     }
     @Override
     public void onBackPressed() {
@@ -74,10 +149,10 @@ public class DisplayImageActivity extends AppCompatActivity {
     }
 
     private void goBackToGallery() {
-        /*Intent i = new Intent(DisplayImageActivity.this, ImageGalleryActivity.class);
-        i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        /*
+        Intent i = new Intent (DisplayImageActivity.this, ImageGalleryActivity.class);
         i.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
         startActivity(i);*/
-        finish();
+        this.finish();
     }
 }

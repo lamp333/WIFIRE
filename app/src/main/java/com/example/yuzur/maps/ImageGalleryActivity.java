@@ -92,6 +92,7 @@ public class ImageGalleryActivity extends AppCompatActivity {
             return 0;
         }
 
+
         @Override
         public View getView(final int position, View convertView, ViewGroup parent) {
             ImageView imageView;
@@ -142,6 +143,12 @@ public class ImageGalleryActivity extends AppCompatActivity {
         mDrawerToggle = mDrawerManager.setUpDrawer(mDrawerLayout, mDrawerList, DrawerManager.GALLERY);
     }
 
+    @Override
+    public void onResume(){
+        super.onResume();
+        // put your code here...
+        checkPermissions();
+    }
     @Override
     protected void onPostCreate(Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
