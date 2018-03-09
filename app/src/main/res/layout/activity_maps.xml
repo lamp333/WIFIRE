@@ -32,6 +32,37 @@
             android:onClick="onClick"
             android:layout_margin="@dimen/margin_padding"/>
 
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="170dp"
+            android:layout_alignParentBottom="true"
+            android:background="#50353535">
+
+            <RelativeLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/rounded_rect_shape"
+                android:layout_margin="@dimen/activity_vertical_margin">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/loc_info_txt"
+                    android:layout_margin="8dp"
+                    android:layout_alignParentLeft="true"
+                    android:textColor="#ffffff"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/sensor_info_txt"
+                    android:layout_margin="8dp"
+                    android:layout_alignParentRight="true"
+                    android:textColor="#ffffff"/>
+
+            </RelativeLayout>
+
+        </RelativeLayout>
+
         <android.support.design.widget.FloatingActionButton
             android:id="@+id/picture_button"
             android:layout_width="70dp"

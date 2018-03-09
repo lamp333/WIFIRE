@@ -60,6 +60,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.Properties;
 
 
@@ -319,6 +320,12 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         TextView TV_Accuracy = (TextView) findViewById((R.id.TV_Accuracy));
         TV_Accuracy.setText("Radius: " + location.getAccuracy() + " meters"); */
 
+        TextView TV_Location = (TextView) findViewById((R.id.loc_info_txt));
+        String longStr = String.format(Locale.US, "Longitude: %1$.3f", longitude);
+        String latStr = String.format(Locale.US, "Latitude: %1$.3f", latitude);
+        String altitudeStr = String.format(Locale.US, "Altitude: %1$.3f", altitude);
+        TV_Location.setText(longStr + "\n" + latStr + "\n" + altitudeStr);
+
 
         if (setup) {
             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 17));
@@ -574,7 +581,13 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 azimuth = Math.toDegrees(orientVals[0]);
                 pitch = Math.toDegrees(orientVals[1]);
                 roll = Math.toDegrees(orientVals[2]);
-                //TextView TV_Warning = (TextView) findViewById((R.id.TV_Warning));
+
+                TextView TV_Sensor = (TextView) findViewById((R.id.sensor_info_txt));
+                String azimuthStr = String.format(Locale.US, "Azimuth: %1$.3f", azimuth);
+                String pitchStr = String.format(Locale.US, "Pitch: %1$.3f", pitch);
+                String rollStr = String.format(Locale.US, "Roll: %1$.3f", roll);
+                TV_Sensor.setText(azimuthStr + "\n" + pitchStr + "\n" + rollStr);
+
                 if (unreliable) {
                     //TV_Warning.setText("Sensor: unreliable");
                 } else {
