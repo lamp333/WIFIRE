@@ -140,7 +140,7 @@ public class ImageGalleryActivity extends AppCompatActivity {
         @Override
         public void onReceive(Context context, Intent intent) {
           if(intent.getAction().equals(FILE_UPLOADED)) {
-              Toast.makeText(ImageGalleryActivity.this, "File uploaded!", Toast.LENGTH_SHORT).show();
+              checkPermissions();
           }
         }
     };
