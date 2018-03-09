@@ -79,6 +79,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     private boolean setup = true;
     private boolean followUserLocation = true;
     public static final int REQUEST_PERMISSIONS_CODE = 99;
+    public static final int MILLIS_BETWEEN_CHANGE = 500;
 
     private boolean allPermissionsGranted = false;
 
@@ -109,6 +110,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     double pitch = 0;
     double roll = 0;
     boolean unreliable = false;
+
+    long lastTimeStringSet = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -325,7 +328,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         String latStr = String.format(Locale.US, "Latitude: %1$.3f", latitude);
         String altitudeStr = String.format(Locale.US, "Altitude: %1$.3f", altitude);
         TV_Location.setText(longStr + "\n" + latStr + "\n" + altitudeStr);
-
 
         if (setup) {
             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 17));
@@ -582,11 +584,15 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 pitch = Math.toDegrees(orientVals[1]);
                 roll = Math.toDegrees(orientVals[2]);
 
-                TextView TV_Sensor = (TextView) findViewById((R.id.sensor_info_txt));
-                String azimuthStr = String.format(Locale.US, "Azimuth: %1$.3f", azimuth);
-                String pitchStr = String.format(Locale.US, "Pitch: %1$.3f", pitch);
-                String rollStr = String.format(Locale.US, "Roll: %1$.3f", roll);
-                TV_Sensor.setText(azimuthStr + "\n" + pitchStr + "\n" + rollStr);
+                if(System.currentTimeMillis() - lastTimeStringSet > MILLIS_BETWEEN_CHANGE) {
+                    TextView TV_Sensor = (TextView) findViewById((R.id.sensor_info_txt));
+                    String azimuthStr = String.format(Locale.US, "Azimuth: %1$.1f", azimuth);
+                    String pitchStr = String.format(Locale.US, "Pitch: %1$.1f", pitch);
+                    String rollStr = String.format(Locale.US, "Roll: %1$.1f", roll);
+                    TV_Sensor.setText(azimuthStr + "\n" + pitchStr + "\n" + rollStr);
+
+                    lastTimeStringSet = System.currentTimeMillis();
+                }
 
                 if (unreliable) {
                     //TV_Warning.setText("Sensor: unreliable");
