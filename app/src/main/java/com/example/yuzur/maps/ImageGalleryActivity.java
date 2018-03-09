@@ -3,6 +3,7 @@ package com.example.yuzur.maps;
 import android.*;
 import android.Manifest;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Matrix;
 import android.graphics.Point;
@@ -25,6 +26,7 @@ import android.widget.LinearLayout;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Map;
 
 import android.os.Bundle;
 import android.os.Environment;
@@ -135,7 +137,7 @@ public class ImageGalleryActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_image_gallery);
 
-        checkPermissions();
+        //checkPermissions(); this is being called on resume
 
         mDrawerManager = new DrawerManager(this);
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -146,7 +148,6 @@ public class ImageGalleryActivity extends AppCompatActivity {
     @Override
     public void onResume(){
         super.onResume();
-        // put your code here...
         checkPermissions();
     }
     @Override
@@ -194,6 +195,12 @@ public class ImageGalleryActivity extends AppCompatActivity {
                 for (File file : files){
                     myImageAdapter.add(file.getAbsolutePath());
                 }
+            }
+            SharedPreferences uploads =  getSharedPreferences("Uploads", MODE_PRIVATE);
+
+            Map<String, ?> allEntries = uploads.getAll();
+            for (Map.Entry<String, ?> entry : allEntries.entrySet()) {
+                Log.wtf("map values", entry.getKey() + ": " + entry.getValue().toString());
             }
         }
     }

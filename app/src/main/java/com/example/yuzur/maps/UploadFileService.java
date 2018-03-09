@@ -4,6 +4,7 @@ import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.job.JobParameters;
 import android.app.job.JobService;
+import android.content.SharedPreferences;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.util.Log;
@@ -138,19 +139,21 @@ public class UploadFileService extends JobService {
                     if ( connection != null){
                         connection.disconnect();
 
-                        if(params.getExtras().get("delete").equals("true"))
-                        {
-                            image.delete();
-                        }
-
-
-
                         uploadNotif.setContentTitle("Uploaded: " + image.getName())
                                 // Removes the progress bar
                                 .setProgress(0,0,false)
                                 .setStyle(new Notification.BigPictureStyle().bigPicture(BitmapFactory.decodeFile(image.getAbsolutePath())));
 
                         notificationManager.notify(0,uploadNotif.build());
+
+                        SharedPreferences uploads =  getSharedPreferences("Uploads", MODE_PRIVATE);
+                        uploads.edit().putBoolean(image.getAbsolutePath(), true).commit();
+
+                        if(params.getExtras().get("delete").equals("true"))
+                        {
+                            uploads.edit().remove(image.getAbsolutePath()).commit();
+                            image.delete();
+                        }
 
                         jobFinished(params, false);
                     }

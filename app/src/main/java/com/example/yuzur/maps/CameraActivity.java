@@ -236,7 +236,10 @@ public class CameraActivity extends AppCompatActivity implements SensorEventList
                     header.setAttribute(ExifInterface.TAG_GPS_LATITUDE, convert(latitude));
                     header.setAttribute(ExifInterface.TAG_GPS_LONGITUDE, convert(longitude));
                     header.setAttribute(ExifInterface.TAG_GPS_ALTITUDE, (int)altitude+"/1");
-                    header.setAttribute("UserComment", "direction: " + (int)azimuth);
+                    header.setAttribute("UserComment",
+                            "azimuth: " + (int)azimuth + "," +
+                                  "pitch: " + (int)pitch + "," +
+                                  "roll: " + (int)roll);
                     header.saveAttributes();
 
                     //Toast.makeText(this, ""+(int) azimuth, Toast.LENGTH_LONG).show();
@@ -273,8 +276,15 @@ public class CameraActivity extends AppCompatActivity implements SensorEventList
                     //Schedule the job
                     //Log.wtf(TAG, "wi_fi_only: " + wifi + " delete:" + delete);
                     int result = mJobScheduler.schedule(builder.build());
-                    if(result <= 0)
+
+                    if(result <= 0) {
                         Log.wtf(TAG, "failed to schedule");
+                    }
+                    else{
+                        //Store image pathname and upload status into shared preferences
+                        SharedPreferences uploads =  getSharedPreferences("Uploads", MODE_PRIVATE);
+                        uploads.edit().putBoolean(path, false).commit();
+                    }
 
                 }
                 catch (IOException e){

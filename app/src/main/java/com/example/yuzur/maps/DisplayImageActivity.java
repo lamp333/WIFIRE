@@ -1,6 +1,7 @@
 package com.example.yuzur.maps;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Point;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -129,6 +130,8 @@ public class DisplayImageActivity extends AppCompatActivity {
             goBackToGallery();
         }
         else if (v.getId() == R.id.delete){
+            SharedPreferences uploads =  getSharedPreferences("Uploads", MODE_PRIVATE);
+            uploads.edit().remove(image.getAbsolutePath()).commit();
             image.delete();
             goBackToGallery();
         }
