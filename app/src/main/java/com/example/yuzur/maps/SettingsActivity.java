@@ -22,7 +22,9 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import java.io.File;
 import java.util.List;
+import java.util.Map;
 
 public class SettingsActivity extends AppCompatActivity implements SharedPreferences.OnSharedPreferenceChangeListener {
     private DrawerManager mDrawerManager;
@@ -106,12 +108,11 @@ public class SettingsActivity extends AppCompatActivity implements SharedPrefere
             else {
                 networkType = JobInfo.NETWORK_TYPE_ANY;
             }
-
-            for(int i = 0; i < activeJobs.size(); i++)
+            if(delete)
             {
-                JobInfo current = activeJobs.get(i);
-                if(delete)
+                for(int i = 0; i < activeJobs.size(); i++)
                 {
+                    JobInfo current = activeJobs.get(i);
                     PersistableBundle bundle = current.getExtras();
                     bundle.putString("delete", "true");
                     JobInfo.Builder builder = new JobInfo.Builder( current.getId(), serviceComponent)
@@ -120,9 +121,24 @@ public class SettingsActivity extends AppCompatActivity implements SharedPrefere
                             .setPersisted(true);
                     mJobScheduler.schedule(builder.build());
                 }
+                SharedPreferences uploads =  getSharedPreferences("Uploads", MODE_PRIVATE);
+                Map<String,?> keys = uploads.getAll();
 
-                else
+                for(Map.Entry<String,?> entry : keys.entrySet()){
+                    if(entry.getValue().toString() == "true"){
+                        File image = new File(entry.getKey());
+                        image.delete();
+                        uploads.edit().remove(entry.getKey()).commit();
+                    }
+                }
+
+            }
+
+            else
+            {
+                for(int i = 0; i < activeJobs.size(); i++)
                 {
+                    JobInfo current = activeJobs.get(i);
                     PersistableBundle bundle = current.getExtras();
                     bundle.putString("delete", "false");
                     JobInfo.Builder builder = new JobInfo.Builder( current.getId(), serviceComponent)
@@ -131,7 +147,9 @@ public class SettingsActivity extends AppCompatActivity implements SharedPrefere
                             .setPersisted(true);
                     mJobScheduler.schedule(builder.build());
                 }
+
             }
+
         }
     }
 

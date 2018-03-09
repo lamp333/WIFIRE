@@ -5,13 +5,11 @@
     <ImageView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:src="@drawable/qualitylogo"
         android:id="@+id/imageView"/>
 
     <ImageView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:src="@drawable/ic_arrow_back_black_24dp"
         android:id="@+id/uploadstatus"/>
 
 
