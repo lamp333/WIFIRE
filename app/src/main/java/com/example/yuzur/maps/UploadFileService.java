@@ -4,9 +4,11 @@ import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.job.JobParameters;
 import android.app.job.JobService;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
 import org.apache.commons.codec.binary.Hex;
@@ -148,6 +150,9 @@ public class UploadFileService extends JobService {
 
                         SharedPreferences uploads =  getSharedPreferences("Uploads", MODE_PRIVATE);
                         uploads.edit().putBoolean(image.getAbsolutePath(), true).commit();
+
+                        Intent broadcastUploaded = new Intent(ImageGalleryActivity.FILE_UPLOADED);
+                        LocalBroadcastManager.getInstance(UploadFileService.this).sendBroadcast(broadcastUploaded);
 
                         if(params.getExtras().get("delete").equals("true"))
                         {

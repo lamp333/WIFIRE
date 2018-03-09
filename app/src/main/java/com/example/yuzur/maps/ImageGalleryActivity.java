@@ -2,7 +2,9 @@ package com.example.yuzur.maps;
 
 import android.*;
 import android.Manifest;
+import android.content.BroadcastReceiver;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Matrix;
@@ -12,6 +14,7 @@ import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v4.widget.PopupMenuCompat;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -60,6 +63,7 @@ public class ImageGalleryActivity extends AppCompatActivity {
     private boolean popupShowing = false;
 
     private static final int REQUEST_STORAGE_CODE = 0;
+    public static final String FILE_UPLOADED = "file_uploaded";
 
     public static final String IMAGE_FILENAME = "image_filename";
 
@@ -182,6 +186,17 @@ public class ImageGalleryActivity extends AppCompatActivity {
 
     ImageAdapter myImageAdapter;
 
+    private BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+          if(intent.getAction().equals(FILE_UPLOADED)) {
+              checkPermissions();
+          }
+        }
+    };
+
+    LocalBroadcastManager bManager;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -193,6 +208,11 @@ public class ImageGalleryActivity extends AppCompatActivity {
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         mDrawerList = (ListView) findViewById(R.id.navList);
         mDrawerToggle = mDrawerManager.setUpDrawer(mDrawerLayout, mDrawerList, DrawerManager.GALLERY);
+
+        bManager = LocalBroadcastManager.getInstance(this);
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(FILE_UPLOADED);
+        bManager.registerReceiver(broadcastReceiver, intentFilter);
     }
 
     @Override
@@ -200,6 +220,13 @@ public class ImageGalleryActivity extends AppCompatActivity {
         super.onResume();
         checkPermissions();
     }
+
+    @Override
+    public void onDestroy(){
+        super.onDestroy();
+        bManager.unregisterReceiver(broadcastReceiver);
+    }
+
     @Override
     protected void onPostCreate(Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
