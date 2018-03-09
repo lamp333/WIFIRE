@@ -170,7 +170,7 @@ public class ImageGalleryActivity extends AppCompatActivity {
                         .load(R.drawable.ic_green_check)
                         .error(R.drawable.qualitylogo)
                         .centerCrop()
-                        .resize(imageLength/5,imageLength/5)
+                        .resize(imageLength/4,imageLength/4)
                         .into(uploadIcon);
             }
 
@@ -246,7 +246,7 @@ public class ImageGalleryActivity extends AppCompatActivity {
             if(files != null){
                 for (File file : files){
                     String pathname = file.getAbsolutePath();
-                    Boolean uploadstatus = uploads.getBoolean(pathname, true);
+                    Boolean uploadstatus = uploads.getBoolean(pathname, false);
                     myImageAdapter.add(pathname, uploadstatus);
                 }
             }
@@ -277,7 +277,7 @@ public class ImageGalleryActivity extends AppCompatActivity {
                     if(files != null){
                         for (File file : files){
                             String pathname = file.getAbsolutePath();
-                            Boolean uploadstatus = uploads.getBoolean(pathname, true);
+                            Boolean uploadstatus = uploads.getBoolean(pathname, false);
                             myImageAdapter.add(pathname, uploadstatus);
                         }
                     }
