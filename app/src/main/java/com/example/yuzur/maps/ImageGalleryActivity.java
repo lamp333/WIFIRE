@@ -67,14 +67,16 @@ public class ImageGalleryActivity extends AppCompatActivity {
 
         private Context mContext;
         ArrayList<String> itemList = new ArrayList<String>();
+        ArrayList<Boolean> uploadStatusList = new ArrayList<Boolean>();
         Display display = getWindowManager().getDefaultDisplay();
 
         public ImageAdapter(Context c) {
             mContext = c;
         }
 
-        void add(String path){
+        void add(String path, Boolean status){
             itemList.add(path);
+            uploadStatusList.add(status);
         }
 
         @Override
@@ -97,6 +99,7 @@ public class ImageGalleryActivity extends AppCompatActivity {
 
         @Override
         public View getView(final int position, View convertView, ViewGroup parent) {
+            /*
             ImageView imageView;
 
             Point size = new Point();
@@ -125,7 +128,54 @@ public class ImageGalleryActivity extends AppCompatActivity {
                 }
             });
 
+
             return imageView;
+            */
+            Point size = new Point();
+            display.getSize(size);
+            final int imageLength = (size.x / 4) - (size.x / 100);
+
+            View gridView = convertView;
+
+            if (convertView == null) {  // if it's not recycled, initialize some attributes
+                LayoutInflater inflater = (LayoutInflater) mContext.getSystemService(mContext.LAYOUT_INFLATER_SERVICE);
+                gridView = inflater.inflate(R.layout.custom_gridview_layout, null);
+
+            }
+
+
+            ImageView imageView = (ImageView) gridView.findViewById(R.id.imageView);
+            final File image = new File(itemList.get(position));
+            Picasso.with(ImageGalleryActivity.this)
+                    .load(image)
+                    .error(R.drawable.qualitylogo)
+                    .centerCrop()
+                    .resize(imageLength,imageLength)
+                    .into(imageView);
+
+            imageView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    Intent i = new Intent(ImageGalleryActivity.this, DisplayImageActivity.class);
+                    i.putExtra(IMAGE_FILENAME, itemList.get(position));
+                    i.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
+                    startActivity(i);
+                }
+            });
+
+            ImageView uploadIcon = (ImageView) gridView.findViewById(R.id.uploadstatus);
+
+            if(uploadStatusList.get(position)){
+                Picasso.with(ImageGalleryActivity.this)
+                        .load(R.drawable.ic_green_check)
+                        .error(R.drawable.qualitylogo)
+                        .centerCrop()
+                        .resize(imageLength/5,imageLength/5)
+                        .into(uploadIcon);
+            }
+
+
+            return gridView;
         }
 
     }
@@ -191,16 +241,14 @@ public class ImageGalleryActivity extends AppCompatActivity {
             File targetDirector = new File(targetPath);
 
             File[] files = targetDirector.listFiles();
+
+            SharedPreferences uploads =  getSharedPreferences("Uploads", MODE_PRIVATE);
             if(files != null){
                 for (File file : files){
-                    myImageAdapter.add(file.getAbsolutePath());
+                    String pathname = file.getAbsolutePath();
+                    Boolean uploadstatus = uploads.getBoolean(pathname, true);
+                    myImageAdapter.add(pathname, uploadstatus);
                 }
-            }
-            SharedPreferences uploads =  getSharedPreferences("Uploads", MODE_PRIVATE);
-
-            Map<String, ?> allEntries = uploads.getAll();
-            for (Map.Entry<String, ?> entry : allEntries.entrySet()) {
-                Log.wtf("map values", entry.getKey() + ": " + entry.getValue().toString());
             }
         }
     }
@@ -223,10 +271,18 @@ public class ImageGalleryActivity extends AppCompatActivity {
 
                     File targetDirector = new File(targetPath);
 
+
                     File[] files = targetDirector.listFiles();
-                    for (File file : files){
-                        myImageAdapter.add(file.getAbsolutePath());
+                    SharedPreferences uploads =  getSharedPreferences("Uploads", MODE_PRIVATE);
+                    if(files != null){
+                        for (File file : files){
+                            String pathname = file.getAbsolutePath();
+                            Boolean uploadstatus = uploads.getBoolean(pathname, true);
+                            myImageAdapter.add(pathname, uploadstatus);
+                        }
                     }
+
+
                 } else {
                     Toast.makeText(this, "Please enable storage permissions to access the gallery.", Toast.LENGTH_LONG).show();
                     finish();
