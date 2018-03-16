@@ -117,8 +117,11 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            requestPermissions();
+        if (checkTermsAgreement()){
+            initCreate();
+        }
+        else{
+            showDisclaimerDialog();
         }
         setContentView(R.layout.activity_maps);
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
@@ -139,10 +142,18 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         mJobScheduler = (JobScheduler) getSystemService( Context.JOB_SCHEDULER_SERVICE );
 
+    }
+
+    public void initCreate (){
         if(checkFirstRun()){
             // Build a Welcome dialog
+            //showDisclaimerDialog();
             showInstructionsDialog();
         }
+        else{
+            requestPermissions();
+        }
+
 
     }
 
@@ -159,11 +170,23 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         return isFirstRun;
     }
 
+    public boolean checkTermsAgreement() {
+        return getSharedPreferences("PREFERENCE", MODE_PRIVATE).getBoolean("termsAgreement", false);
+    }
+
+    public void setTermsAgreement(boolean input) {
+        getSharedPreferences("PREFERENCE", MODE_PRIVATE)
+                .edit()
+                .putBoolean("termsAgreement", input)
+                .commit();
+    }
+
     private void showInstructionsDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setMessage(R.string.welcome)
                 .setPositiveButton("Got it!", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
+                        requestPermissions();
                     }
                 });
         // Create the AlertDialog object and show it
@@ -171,6 +194,33 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         welcome_dialog.setCancelable(false);
         welcome_dialog.setCanceledOnTouchOutside(false);
         welcome_dialog.show();
+    }
+
+    private void showDisclaimerDialog() {
+        boolean termsAgreement = checkTermsAgreement();
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage("DISCLAIMER")
+                .setPositiveButton("Accept", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        setTermsAgreement(true);
+                        initCreate();
+                    }
+                })
+                .setNegativeButton("Decline", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        setTermsAgreement(false);
+                        System.exit(0);
+                    }
+                });
+
+        if (!termsAgreement){
+            // Create the AlertDialog object and show it
+            Dialog disclaimer = builder.create();
+            disclaimer.setCancelable(false);
+            disclaimer.setCanceledOnTouchOutside(false);
+            disclaimer.show();
+        }
     }
 
     protected synchronized void buildGoogleApiClient() {
@@ -229,11 +279,13 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     public void requestPermissions() {
-        String[] permissionsNeeded = checkPermissions();
-        if(permissionsNeeded.length != 0) {
-            ActivityCompat.requestPermissions(this, permissionsNeeded, REQUEST_PERMISSIONS_CODE);
-        } else {
-            allPermissionsGranted = true;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            String[] permissionsNeeded = checkPermissions();
+            if(permissionsNeeded.length != 0) {
+                ActivityCompat.requestPermissions(this, permissionsNeeded, REQUEST_PERMISSIONS_CODE);
+            } else {
+                allPermissionsGranted = true;
+            }
         }
     }
 
